@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OWC Admin — Control Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b10;--bg2:#0d1117;--bg3:#111820;--bg4:#161e2a;
+  --border:#1a2235;--border2:#223050;--border3:#2a3a55;
+  --text:#dde4f0;--text2:#7a8aaa;--text3:#3d4f6a;
+  --gold:#e8b84b;--gold2:#f5d57a;--gold-dim:rgba(232,184,75,0.1);--gold-glow:rgba(232,184,75,0.15);
+  --blue:#4a8cf7;--blue2:#6aa4ff;--blue-dim:rgba(74,140,247,0.1);
+  --green:#2dd4a4;--green2:#50e0b8;--green-dim:rgba(45,212,164,0.1);
+  --red:#f0535e;--red2:#ff7580;--red-dim:rgba(240,83,94,0.1);
+  --orange:#f59b45;--orange-dim:rgba(245,155,69,0.1);
+  --purple:#9b72f5;--purple-dim:rgba(155,114,245,0.1);
+  --teal:#38c4e8;--teal-dim:rgba(56,196,232,0.1);
+  --warn:#f5c842;--warn-dim:rgba(245,200,66,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:rgba(8,11,16,0.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:52px;
+}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:28px;height:28px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#000;}
+.logo-text{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);}
+.admin-badge{background:var(--red-dim);border:1px solid rgba(240,83,94,0.3);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:3px;letter-spacing:1px;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-pill{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);padding:4px 10px 4px 4px;border-radius:20px;}
+.tb-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+.tb-status{font-size:11px;color:var(--text2);}
+.tb-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);}
+.tb-user{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border2);padding:4px 10px 4px 4px;border-radius:20px;cursor:pointer;}
+.tb-avatar{width:24px;height:24px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+.tb-uname{font-size:12px;color:var(--text2);}
+.btn-back{background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.12s;}
+.btn-back:hover{color:var(--text);border-color:var(--border2);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 52px);}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--bg2);border-right:1px solid var(--border);
+  position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;
+}
+.sb-sect{margin-bottom:4px;}
+.sb-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text3);padding:0 14px 6px;}
+.sb-btn{
+  display:flex;align-items:center;gap:9px;padding:8px 14px;
+  width:100%;background:transparent;border:none;text-align:left;
+  font-family:'Outfit',sans-serif;font-size:12.5px;color:var(--text2);
+  border-left:2px solid transparent;cursor:pointer;transition:all 0.12s;
+}
+.sb-btn:hover{background:var(--bg3);color:var(--text);}
+.sb-btn.active{background:var(--red-dim);color:var(--red2);border-left-color:var(--red);}
+.sb-btn.active .sb-ic{opacity:1;}
+.sb-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0;opacity:0.6;}
+.sb-cnt{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--bg4);color:var(--text3);padding:1px 5px;border-radius:6px;}
+.sb-alert{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;font-family:'JetBrains Mono',monospace;}
+.sb-divider{height:1px;background:var(--border);margin:8px 14px;}
+.sb-bottom{margin-top:auto;}
+
+/* ── MAIN ── */
+.main{background:var(--bg);overflow-y:auto;}
+.view{display:none;padding:28px;}
+.view.active{display:block;animation:fadeUp 0.25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PAGE HEAD ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
+.ph-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);}
+.ph-sub{font-size:12px;color:var(--text2);margin-top:3px;}
+.ph-actions{display:flex;gap:8px;align-items:center;}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 16px;border-radius:6px;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.2px;}
+.btn-prim{background:var(--gold);color:#000;}
+.btn-prim:hover{background:var(--gold2);}
+.btn-sec{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);}
+.btn-sec:hover{color:var(--text);border-color:var(--border3);}
+.btn-danger{background:var(--red-dim);border:1px solid rgba(240,83,94,0.3);color:var(--red);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-success{background:var(--green-dim);border:1px solid rgba(45,212,164,0.3);color:var(--green);}
+.btn-success:hover{background:var(--green);color:#000;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-xs{padding:3px 8px;font-size:10px;}
+
+/* ── METRICS ROW ── */
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:24px;}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
+.metric::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.metric.m-gold::after{background:var(--gold);}
+.metric.m-blue::after{background:var(--blue);}
+.metric.m-green::after{background:var(--green);}
+.metric.m-red::after{background:var(--red);}
+.metric.m-purple::after{background:var(--purple);}
+.metric.m-orange::after{background:var(--orange);}
+.mv{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--text);line-height:1;}
+.ml{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;}
+.ms{font-size:10px;margin-top:3px;}
+.ms.up{color:var(--green);}
+.ms.down{color:var(--red);}
+.ms.neu{color:var(--text3);}
+
+/* ── TABLES ── */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.table-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);}
+.table-actions{display:flex;gap:8px;align-items:center;}
+.search-sm{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:'Outfit',sans-serif;outline:none;width:180px;}
+.search-sm:focus{border-color:var(--border2);}
+.search-sm::placeholder{color:var(--text3);}
+.sel-sm{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text2);font-size:12px;font-family:'Outfit',sans-serif;outline:none;cursor:pointer;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 16px;font-size:12.5px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
+.td-name{font-weight:500;color:var(--text);}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.badge-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(45,212,164,0.2);}
+.badge-inactive{background:var(--bg4);color:var(--text3);border:1px solid var(--border);}
+.badge-pending{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(245,200,66,0.2);}
+.badge-paid{background:var(--green-dim);color:var(--green);border:1px solid rgba(45,212,164,0.2);}
+.badge-unpaid{background:var(--red-dim);color:var(--red);border:1px solid rgba(240,83,94,0.2);}
+.badge-refund{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(245,155,69,0.2);}
+.badge-live{background:var(--red-dim);color:var(--red);border:1px solid rgba(240,83,94,0.3);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.badge-scheduled{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(74,140,247,0.2);}
+.badge-completed{background:rgba(100,100,120,0.15);color:var(--text3);border:1px solid var(--border);}
+.badge-verified{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(74,140,247,0.2);}
+.badge-phd{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(155,114,245,0.2);}
+.badge-subject{background:var(--bg4);color:var(--text2);border:1px solid var(--border);}
+
+/* ── ACTION ICONS ── */
+.act-row{display:flex;gap:5px;}
+.act-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all 0.12s;}
+.act-btn:hover{border-color:var(--border2);color:var(--text);}
+.act-btn.edit:hover{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);}
+.act-btn.del:hover{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.act-btn.view:hover{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+.act-btn.tog:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+
+/* ── TOGGLE ── */
+.toggle{position:relative;display:inline-block;width:34px;height:18px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--border2);border-radius:20px;transition:all 0.2s;}
+.toggle-slider::before{content:'';position:absolute;width:12px;height:12px;left:2px;top:2px;background:var(--text3);border-radius:50%;transition:all 0.2s;}
+.toggle input:checked + .toggle-slider{background:var(--green-dim);border-color:var(--green);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(16px);background:var(--green);}
+
+/* ── CHARTS (CSS only) ── */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.chart-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:16px;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-lbl{font-size:11px;color:var(--text2);width:90px;text-align:right;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.bar-track{flex:1;background:var(--bg4);border-radius:3px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.8s ease;}
+.bar-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);width:36px;text-align:right;}
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut{position:relative;width:80px;height:80px;flex-shrink:0;}
+.donut-circle{transform:rotate(-90deg);transform-origin:50% 50%;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;}
+.dl-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:40px;margin-top:8px;}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;min-width:6px;transition:height 0.5s ease;}
+.revenue-nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.rn-item{background:var(--bg4);border-radius:6px;padding:10px 12px;}
+.rn-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.rn-lbl{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;animation:fadeIn 0.18s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease;}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:18px;}
+.form-grp{margin-bottom:12px;}
+.form-lbl{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:5px;}
+.form-in,.form-sel,.form-ta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 11px;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border 0.12s;}
+.form-in:focus,.form-sel:focus,.form-ta:focus{border-color:var(--border3);}
+.form-ta{resize:vertical;min-height:72px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+.warn-box{background:var(--warn-dim);border:1px solid rgba(245,200,66,0.2);border-radius:6px;padding:10px 13px;font-size:12px;color:var(--warn);margin-bottom:14px;}
+.info-box{background:var(--blue-dim);border:1px solid rgba(74,140,247,0.2);border-radius:6px;padding:10px 13px;font-size:12px;color:var(--blue);margin-bottom:14px;}
+
+/* ── GRID CARDS ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.panel-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+
+/* ── SUBJECT CARDS ── */
+.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px;}
+.subj-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:14px 16px;transition:all 0.15s;}
+.subj-card:hover{border-color:var(--border2);}
+.sc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.sc-icon{font-size:20px;}
+.sc-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.sc-stats{display:flex;gap:10px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.sc-actions{display:flex;gap:5px;margin-top:10px;}
+
+/* ── TUTOR CARD ── */
+.tutor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:20px;}
+.tutor-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:all 0.15s;}
+.tutor-card:hover{border-color:var(--border2);}
+.tc-head{display:flex;gap:12px;margin-bottom:12px;}
+.tc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#000;flex-shrink:0;}
+.tc-name{font-weight:600;font-size:13px;color:var(--text);}
+.tc-deg{font-size:11px;color:var(--text2);margin-top:1px;}
+.tc-stars{color:var(--gold);font-size:11px;margin-top:2px;}
+.tc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
+.tc-stat{background:var(--bg3);border-radius:5px;padding:6px 8px;text-align:center;}
+.tc-sv{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);}
+.tc-sl{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.tc-subjs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.tc-actions{display:flex;gap:6px;}
+
+/* ── SESSION MANAGEMENT ── */
+.sess-timeline{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.sess-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:14px;transition:all 0.12s;}
+.sess-item:hover{border-color:var(--border2);}
+.sess-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);flex-shrink:0;text-align:center;min-width:80px;}
+.sess-info{flex:1;}
+.sess-title{font-size:13px;font-weight:500;color:var(--text);}
+.sess-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.sess-tutor{font-size:12px;color:var(--text2);flex-shrink:0;}
+.sess-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── PAYMENT ROWS ── */
+.pay-row-extra{background:var(--bg4);border-left:2px solid var(--border2);padding:10px 16px;font-size:12px;color:var(--text2);}
+
+/* ── ANALYTICS ── */
+.analytics-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+.big-chart{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.bc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.bc-sub{font-size:11px;color:var(--text3);margin-bottom:16px;}
+.line-chart-wrap{height:120px;position:relative;overflow:hidden;}
+.line-chart-wrap svg{width:100%;height:100%;}
+.top-list{display:flex;flex-direction:column;gap:6px;}
+.tl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:6px;}
+.tl-rank{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);width:18px;}
+.tl-name{font-size:12px;color:var(--text);flex:1;}
+.tl-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);}
+
+/* ── SETTINGS ── */
+.settings-sections{display:flex;flex-direction:column;gap:16px;}
+.settings-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.settings-card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.sr-left{}
+.sr-label{font-size:13px;color:var(--text);}
+.sr-desc{font-size:11px;color:var(--text3);margin-top:2px;}
+.danger-zone{background:var(--bg2);border:1px solid rgba(240,83,94,0.3);border-radius:10px;padding:20px;}
+.dz-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--red);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid rgba(240,83,94,0.2);}
+
+/* ── NOTIFICATION FEED ── */
+.notif-feed{display:flex;flex-direction:column;gap:6px;}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:6px;font-size:12px;}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.notif-text{flex:1;color:var(--text2);}
+.notif-text strong{color:var(--text);}
+.notif-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);padding:4px;border-radius:8px;margin-bottom:20px;width:fit-content;}
+.tab-btn{padding:6px 16px;border-radius:5px;font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:'Outfit',sans-serif;transition:all 0.12s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{background:var(--bg4);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+
+/* ── CONFIRM DIALOG ── */
+.confirm-box{text-align:center;padding:10px 0;}
+.confirm-icon{font-size:36px;margin-bottom:12px;}
+.confirm-msg{font-size:14px;color:var(--text);margin-bottom:6px;font-weight:500;}
+.confirm-sub{font-size:12px;color:var(--text2);}
+</style>
+<script src="../js/owc-data.js"></script>
+</head>
+<body>
+<!-- LOGIN GATE -->
+<div id="owc-login-gate" style="display:none;position:fixed;inset:0;background:#080b10;z-index:99999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#0d1117;border:1px solid #1e2d40;border-radius:16px;padding:40px 44px;width:360px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#e8e8f0;margin-bottom:6px;">🔐 Admin Login</div>
+    <div style="font-size:13px;color:#6b7a8d;margin-bottom:28px;font-family:'Outfit',sans-serif;">One World Classroom · Control Centre</div>
+    <input id="owc-admin-pw" type="password" placeholder="Enter admin password" autocomplete="current-password"
+      style="width:100%;box-sizing:border-box;background:#111820;border:1px solid #1e2d40;border-radius:8px;color:#e8e8f0;font-family:'Outfit',sans-serif;font-size:14px;padding:11px 14px;margin-bottom:10px;outline:none;"
+      onkeydown="if(event.key==='Enter')owcAdminLogin()">
+    <div id="owc-login-err" style="color:#f87171;font-size:12px;height:16px;margin-bottom:10px;font-family:'Outfit',sans-serif;"></div>
+    <button onclick="owcAdminLogin()" style="width:100%;background:#e8b84b;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;padding:12px;border:none;border-radius:8px;cursor:pointer;">Login →</button>
+    <div style="margin-top:18px;font-size:11px;color:#3a4a5a;font-family:'JetBrains Mono',monospace;">Default: owcadmin2025</div>
+  </div>
+</div>
+<script>
+(function(){
+  const gate = document.getElementById('owc-login-gate');
+  if(!OWC.isAdminLoggedIn()) { gate.style.display='flex'; document.body.style.overflow='hidden'; }
+  else { gate.style.display='none'; }
+})();
+function owcAdminLogin(){
+  const pw = document.getElementById('owc-admin-pw').value;
+  if(OWC.adminLogin(pw)){
+    document.getElementById('owc-login-gate').style.display='none';
+    document.body.style.overflow='';
+    owcInitAdmin();
+  } else {
+    document.getElementById('owc-login-err').textContent='Incorrect password. Try again.';
+  }
+}
+</script>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="logo">
+      <div class="logo-mark">OW</div>
+      <span class="logo-text">One World Classroom</span>
+    </div>
+    <span class="admin-badge">⬡ ADMIN</span>
+  </div>
+  <div class="tb-right">
+    <div class="tb-pill">
+      <div class="tb-dot"></div>
+      <span class="tb-status">All Systems Operational</span>
+    </div>
+    <span class="tb-time" id="clock"></span>
+    <button class="btn-back" onclick="alert('Returning to main platform...')">← Platform</button>
+    <div class="tb-user">
+      <div class="tb-avatar">SA</div>
+      <span class="tb-uname">Super Admin</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-sect">
+    <div class="sb-lbl">Overview</div>
+    <button class="sb-btn active" onclick="nav('dashboard',this)"><span class="sb-ic">⬡</span>Dashboard</button>
+    <button class="sb-btn" onclick="nav('analytics',this)"><span class="sb-ic">◈</span>Analytics<span class="sb-cnt">Live</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-sect">
+    <div class="sb-lbl">Content</div>
+    <button class="sb-btn" onclick="nav('subjects',this)"><span class="sb-ic">◫</span>Subjects<span class="sb-cnt">20</span></button>
+    <button class="sb-btn" onclick="nav('sessions_mgmt',this)"><span class="sb-ic">☷</span>Sessions<span class="sb-cnt">200</span></button>
+    <button class="sb-btn" onclick="nav('packages_mgmt',this)"><span class="sb-ic">◉</span>Packages<span class="sb-cnt">15</span></button>
+      <button class="sb-btn" onclick="nav('mock_mgmt',this)" style="color:#f97316;"><span class="sb-ic">✦</span>Mock Exams<span class="sb-cnt" style="background:rgba(249,115,22,0.15);color:#f97316;">9</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-sect">
+    <div class="sb-lbl">People</div>
+    <button class="sb-btn" onclick="nav('tutors',this)"><span class="sb-ic">⊙</span>Tutors<span class="sb-cnt">24</span></button>
+    <button class="sb-btn" onclick="nav('students',this)"><span class="sb-ic">⊞</span>Students<span class="sb-cnt">341</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-sect">
+    <div class="sb-lbl">Operations</div>
+    <button class="sb-btn" onclick="nav('live_sessions',this)"><span class="sb-ic">▶</span>Live Sessions<span class="sb-alert">3</span></button>
+    <button class="sb-btn" onclick="nav('payments',this)"><span class="sb-ic">€</span>Payments<span class="sb-alert">7</span></button>
+    <button class="sb-btn" onclick="nav('bookings',this)"><span class="sb-ic">◷</span>Bookings<span class="sb-cnt">28</span></button>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-sect">
+    <div class="sb-lbl">System</div>
+    <button class="sb-btn" onclick="nav('settings',this)"><span class="sb-ic">⚙</span>Settings</button>
+    <button class="sb-btn" onclick="nav('logs',this)"><span class="sb-ic">≡</span>Audit Logs</button>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-divider"></div>
+    <div style="padding:10px 14px;">
+      <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">SYSTEM</div>
+      <div style="font-size:11px;color:var(--text2);">v3.0 · Feb 2026</div>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:4px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);"></div><span style="font-size:10px;color:var(--text3);">DB Connected</span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ══════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════ -->
+<div class="view active" id="view-dashboard">
+  <div class="ph">
+    <div><div class="ph-title">Admin Dashboard</div><div class="ph-sub">Real-time overview · One World Classroom · February 2026</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="nav('analytics',document.querySelectorAll('.sb-btn')[1])">Full Analytics</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('quick_add')">+ Quick Add</button>
+    </div>
+  </div>
+
+  <div class="metrics" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+    <div class="metric m-gold"><div class="mv">€8,640</div><div class="ml">REVENUE THIS MONTH</div><div class="ms up">↑ 18% vs last month</div></div>
+    <div class="metric m-green"><div class="mv">341</div><div class="ml">TOTAL STUDENTS</div><div class="ms up">↑ 42 new this week</div></div>
+    <div class="metric m-blue"><div class="mv">24</div><div class="ml">ACTIVE TUTORS</div><div class="ms neu">3 pending approval</div></div>
+    <div class="metric m-red"><div class="mv">3</div><div class="ml">LIVE SESSIONS NOW</div><div class="ms up">↑ All on schedule</div></div>
+    <div class="metric m-purple"><div class="mv">4</div><div class="ml">BOOKING CHANNELS</div><div class="ms neu">Custom·Pkg·Sess·Mock</div></div>
+    <div class="metric m-orange"><div class="mv">9</div><div class="ml">MOCK PAPERS</div><div class="ms up">↑ NEW this month</div></div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Revenue by Subject (This Month)</div>
+      <div class="chart-sub">Top performing subjects</div>
+      <div class="bar-chart">
+        <div class="bar-row"><span class="bar-lbl">Mathematics</span><div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--blue);"></div></div><span class="bar-val">€2,880</span></div>
+        <div class="bar-row"><span class="bar-lbl">Engineering</span><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--orange);"></div></div><span class="bar-val">€1,920</span></div>
+        <div class="bar-row"><span class="bar-lbl">IELTS</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--gold);"></div></div><span class="bar-val">€1,440</span></div>
+        <div class="bar-row"><span class="bar-lbl">Programming</span><div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--green);"></div></div><span class="bar-val">€1,200</span></div>
+        <div class="bar-row"><span class="bar-lbl">Physics</span><div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--teal);"></div></div><span class="bar-val">€960</span></div>
+        <div class="bar-row"><span class="bar-lbl">Others</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--purple);"></div></div><span class="bar-val">€240</span></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Booking Types</div>
+      <div class="chart-sub">Distribution this month</div>
+      <div class="donut-wrap">
+        <div class="donut">
+          <svg viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--bg4)" stroke-width="4"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--blue)" stroke-width="4" stroke-dasharray="38 50" stroke-dashoffset="0" class="donut-circle"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="30 58" stroke-dashoffset="-38" class="donut-circle"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="var(--green)" stroke-width="4" stroke-dasharray="20 68" stroke-dashoffset="-68" class="donut-circle"/>
+          </svg>
+        </div>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:var(--gold)"></div>Packages (43%)</div>
+          <div class="dl-item"><div class="dl-dot" style="background:var(--blue)"></div>Custom (34%)</div>
+          <div class="dl-item"><div class="dl-dot" style="background:var(--green)"></div>Sessions (23%)</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+      <div class="chart-title">Weekly Sessions</div>
+      <div class="sparkline">
+        <div class="spark-bar" style="height:40%;background:var(--border2);"></div>
+        <div class="spark-bar" style="height:60%;background:var(--border2);"></div>
+        <div class="spark-bar" style="height:45%;background:var(--border2);"></div>
+        <div class="spark-bar" style="height:80%;background:var(--blue);"></div>
+        <div class="spark-bar" style="height:65%;background:var(--blue);"></div>
+        <div class="spark-bar" style="height:90%;background:var(--gold);"></div>
+        <div class="spark-bar" style="height:70%;background:var(--border2);"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-title">⚡ Live Now (3 Sessions)<button class="btn btn-sec btn-xs" onclick="nav('live_sessions',null)">View All</button></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--bg3);border:1px solid rgba(240,83,94,0.2);border-radius:7px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:12px;font-weight:500;">Calculus I – Integration</span><span class="badge badge-live">● LIVE</span></div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Dr. Müller → Julia Schneider · 47 min remaining</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid rgba(240,83,94,0.2);border-radius:7px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:12px;font-weight:500;">IELTS Writing Task 2</span><span class="badge badge-live">● LIVE</span></div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Sarah Mitchell → Ahmed Ali · 22 min remaining</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid rgba(240,83,94,0.2);border-radius:7px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:12px;font-weight:500;">Python – OOP Concepts</span><span class="badge badge-live">● LIVE</span></div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Dr. Novak → Priya Singh · 68 min remaining</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">🔔 Recent Activity<button class="btn btn-sec btn-xs">Clear</button></div>
+      <div class="notif-feed">
+        <div class="notif-item"><div class="notif-dot" style="background:var(--green)"></div><span class="notif-text"><strong>New booking</strong> — Ahmed Ali booked IELTS 6H package</span><span class="notif-time">2m ago</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:var(--gold)"></div><span class="notif-text"><strong>Payment received</strong> — €120 from Priya Singh</span><span class="notif-time">8m ago</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:var(--blue)"></div><span class="notif-text"><strong>New tutor application</strong> — Dr. Yuki Tanaka (Physics)</span><span class="notif-time">31m ago</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:var(--red)"></div><span class="notif-text"><strong>Session cancelled</strong> — Linear Algebra 14:00 today</span><span class="notif-time">1h ago</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:var(--green)"></div><span class="notif-text"><strong>5-star review</strong> — Dr. Müller from Julia Schneider</span><span class="notif-time">2h ago</span></div>
+        <div class="notif-item"><div class="notif-dot" style="background:var(--warn)"></div><span class="notif-text"><strong>Refund requested</strong> — €60 from Marco Rossi</span><span class="notif-time">3h ago</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SUBJECTS MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-subjects">
+  <div class="ph">
+    <div><div class="ph-title">Subject Management</div><div class="ph-sub">Add, edit, activate/deactivate subjects and their session content</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('import_subj')">↑ Import</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('add_subject')">+ Add Subject</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-blue"><div class="mv">20</div><div class="ml">TOTAL SUBJECTS</div></div>
+    <div class="metric m-green"><div class="mv">18</div><div class="ml">ACTIVE</div></div>
+    <div class="metric m-red"><div class="mv">2</div><div class="ml">INACTIVE</div></div>
+    <div class="metric m-gold"><div class="mv">200</div><div class="ml">TOTAL SESSIONS</div></div>
+  </div>
+  <div class="subj-grid" id="subj-admin-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SESSIONS MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-sessions_mgmt">
+  <div class="ph">
+    <div><div class="ph-title">Session Content Management</div><div class="ph-sub">Manage all individual sessions across every subject</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('bulk_sessions')">Bulk Edit</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('add_session')">+ Add Session</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">All Sessions (200)</span>
+      <div class="table-actions">
+        <input class="search-sm" placeholder="Search sessions...">
+        <select class="sel-sm"><option>All Subjects</option><option>Mathematics</option><option>Engineering</option><option>IELTS</option><option>Programming</option></select>
+        <select class="sel-sm"><option>All Levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+      </div>
+    </div>
+    <table><thead><tr><th>#</th><th>Session Title</th><th>Subject</th><th>Level</th><th>Duration</th><th>Price</th><th>Bookings</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="sess-mgmt-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PACKAGES MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-packages_mgmt">
+  <div class="ph">
+    <div><div class="ph-title">Package Management</div><div class="ph-sub">Create and manage pre-designed 3H / 6H / 12H packages</div></div>
+    <div class="ph-actions"><button class="btn btn-prim btn-sm" onclick="openModal('add_package')">+ New Package</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-green"><div class="mv">15</div><div class="ml">TOTAL PACKAGES</div></div>
+    <div class="metric m-blue"><div class="mv">127</div><div class="ml">SOLD THIS MONTH</div></div>
+    <div class="metric m-gold"><div class="mv">€5,040</div><div class="ml">PACKAGE REVENUE</div></div>
+    <div class="metric m-red"><div class="mv">3H · 6H · 12H</div><div class="ml">AVAILABLE TIERS</div></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">All Packages</span>
+      <div class="table-actions">
+        <select class="sel-sm"><option>All Subjects</option><option>Mathematics</option><option>Engineering</option><option>IELTS</option></select>
+        <select class="sel-sm"><option>All Tiers</option><option>3 Hours</option><option>6 Hours</option><option>12 Hours</option></select>
+      </div>
+    </div>
+    <table><thead><tr><th>Package</th><th>Subject</th><th>Hours</th><th>Price</th><th>Format Options</th><th>Sold</th><th>Revenue</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="pkg-mgmt-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TUTORS MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-tutors">
+  <div class="ph">
+    <div><div class="ph-title">Tutor Management</div><div class="ph-sub">Manage all tutors, credentials, availability, subjects and payouts</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('payout_all')">€ Run Payouts</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('add_tutor')">+ Add Tutor</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-blue"><div class="mv">24</div><div class="ml">TOTAL TUTORS</div></div>
+    <div class="metric m-green"><div class="mv">21</div><div class="ml">ACTIVE</div></div>
+    <div class="metric m-red"><div class="mv">3</div><div class="ml">PENDING APPROVAL</div></div>
+    <div class="metric m-gold"><div class="mv">4.8</div><div class="ml">AVG RATING</div></div>
+    <div class="metric m-purple"><div class="mv">486</div><div class="ml">SESSIONS THIS MONTH</div></div>
+    <div class="metric m-orange"><div class="mv">€9,720</div><div class="ml">TOTAL PAYOUTS DUE</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'tutors-all')">All Tutors</button>
+    <button class="tab-btn" onclick="switchTab(this,'tutors-pending')">Pending Approval (3)</button>
+    <button class="tab-btn" onclick="switchTab(this,'tutors-payout')">Payout Overview</button>
+  </div>
+  <div id="tutors-all" class="tutor-grid" style="display:grid;"></div>
+  <div id="tutors-pending" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Awaiting Approval</span></div>
+      <table><thead><tr><th>Name</th><th>Degree</th><th>Subject(s)</th><th>Applied</th><th>Documents</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td class="td-name">Dr. Yuki Tanaka</td><td class="td-mono">PhD Physics, Osaka</td><td><span class="badge badge-subject">Physics</span> <span class="badge badge-subject">Math</span></td><td class="td-mono">Today, 09:31</td><td><button class="btn btn-sec btn-xs">View CV</button></td><td class="act-row"><button class="btn btn-success btn-xs" onclick="toast('✅ Tutor approved!')">Approve</button><button class="btn btn-danger btn-xs" onclick="openModal('reject_tutor','Dr. Yuki Tanaka')">Reject</button></td></tr>
+        <tr><td class="td-name">Prof. Chen Wei</td><td class="td-mono">PhD CS, Peking Uni</td><td><span class="badge badge-subject">Programming</span> <span class="badge badge-subject">CS</span></td><td class="td-mono">Yesterday</td><td><button class="btn btn-sec btn-xs">View CV</button></td><td class="act-row"><button class="btn btn-success btn-xs" onclick="toast('✅ Tutor approved!')">Approve</button><button class="btn btn-danger btn-xs" onclick="openModal('reject_tutor','Prof. Chen Wei')">Reject</button></td></tr>
+        <tr><td class="td-name">Dr. Fatima Al-Sayed</td><td class="td-mono">MD, Cairo University</td><td><span class="badge badge-subject">Medicine</span></td><td class="td-mono">2 days ago</td><td><button class="btn btn-sec btn-xs">View CV</button></td><td class="act-row"><button class="btn btn-success btn-xs" onclick="toast('✅ Tutor approved!')">Approve</button><button class="btn btn-danger btn-xs" onclick="openModal('reject_tutor','Dr. Fatima Al-Sayed')">Reject</button></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <div id="tutors-payout" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Payout Summary — February 2026</span><div class="table-actions"><button class="btn btn-prim btn-sm" onclick="toast('💸 All payouts initiated!')">Process All Payouts</button></div></div>
+      <table><thead><tr><th>Tutor</th><th>Sessions</th><th>Hours</th><th>Rate/hr</th><th>Amount Due</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="payout-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     STUDENTS MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-students">
+  <div class="ph">
+    <div><div class="ph-title">Student Management</div><div class="ph-sub">All registered students, booking history, and account controls</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('export_students')">↓ Export CSV</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('add_student')">+ Add Student</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-green"><div class="mv">341</div><div class="ml">TOTAL STUDENTS</div></div>
+    <div class="metric m-blue"><div class="mv">284</div><div class="ml">ACTIVE (BOOKED)</div></div>
+    <div class="metric m-gold"><div class="mv">42</div><div class="ml">NEW THIS WEEK</div></div>
+    <div class="metric m-purple"><div class="mv">12</div><div class="ml">SUSPENDED</div></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">All Students</span>
+      <div class="table-actions">
+        <input class="search-sm" placeholder="Search students...">
+        <select class="sel-sm"><option>All Statuses</option><option>Active</option><option>Inactive</option><option>Suspended</option></select>
+        <select class="sel-sm"><option>All Fields</option><option>Engineering</option><option>Mathematics</option><option>Medicine</option></select>
+      </div>
+    </div>
+    <table><thead><tr><th>#</th><th>Student</th><th>Email</th><th>Field</th><th>Bookings</th><th>Spent</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="students-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LIVE SESSIONS
+══════════════════════════════════════ -->
+<div class="view" id="view-live_sessions">
+  <div class="ph">
+    <div><div class="ph-title">Session Management</div><div class="ph-sub">Live, scheduled, and completed sessions — full oversight and control</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-prim btn-sm" onclick="openModal('schedule_session')">+ Schedule Session</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-red"><div class="mv">3</div><div class="ml">LIVE RIGHT NOW</div></div>
+    <div class="metric m-blue"><div class="mv">17</div><div class="ml">SCHEDULED TODAY</div></div>
+    <div class="metric m-green"><div class="mv">486</div><div class="ml">COMPLETED THIS MONTH</div></div>
+    <div class="metric m-gold"><div class="mv">97%</div><div class="ml">ON-TIME RATE</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'sess-live')">● Live (3)</button>
+    <button class="tab-btn" onclick="switchTab(this,'sess-scheduled')">Scheduled (17)</button>
+    <button class="tab-btn" onclick="switchTab(this,'sess-completed')">Completed</button>
+  </div>
+  <div id="sess-live">
+    <div class="sess-timeline" id="live-sess-list"></div>
+  </div>
+  <div id="sess-scheduled" style="display:none;">
+    <div class="sess-timeline" id="sched-sess-list"></div>
+  </div>
+  <div id="sess-completed" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Completed Sessions</span><div class="table-actions"><input class="search-sm" placeholder="Search..."><select class="sel-sm"><option>All Subjects</option></select></div></div>
+      <table><thead><tr><th>Date</th><th>Session</th><th>Tutor</th><th>Student</th><th>Duration</th><th>Rating</th><th>Summary Sent</th><th>Actions</th></tr></thead>
+      <tbody id="completed-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAYMENTS
+══════════════════════════════════════ -->
+<div class="view" id="view-payments">
+  <div class="ph">
+    <div><div class="ph-title">Payment Management</div><div class="ph-sub">All transactions, refunds, pending payments, and financial controls</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('export_payments')">↓ Export</button>
+      <button class="btn btn-prim btn-sm" onclick="openModal('manual_payment')">+ Manual Entry</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-gold"><div class="mv">€8,640</div><div class="ml">REVENUE THIS MONTH</div><div class="ms up">↑ 18%</div></div>
+    <div class="metric m-green"><div class="mv">€6,480</div><div class="ml">CONFIRMED PAID</div></div>
+    <div class="metric m-red"><div class="mv">€420</div><div class="ml">PENDING / OVERDUE</div></div>
+    <div class="metric m-orange"><div class="mv">€240</div><div class="ml">REFUND REQUESTS</div></div>
+    <div class="metric m-blue"><div class="mv">432</div><div class="ml">TRANSACTIONS</div></div>
+    <div class="metric m-purple"><div class="mv">€9,720</div><div class="ml">TUTOR PAYOUTS DUE</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(this,'pay-all')">All Transactions</button>
+    <button class="tab-btn" onclick="switchTab(this,'pay-pending')">Pending (7)</button>
+    <button class="tab-btn" onclick="switchTab(this,'pay-refunds')">Refunds (4)</button>
+  </div>
+  <div id="pay-all">
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">Transaction History</span>
+        <div class="table-actions">
+          <input class="search-sm" placeholder="Search by name / ID...">
+          <select class="sel-sm"><option>All Types</option><option>Package</option><option>Custom</option><option>Session</option></select>
+          <select class="sel-sm"><option>All Statuses</option><option>Paid</option><option>Pending</option><option>Refunded</option></select>
+        </div>
+      </div>
+      <table><thead><tr><th>ID</th><th>Date</th><th>Student</th><th>Type</th><th>Subject</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="payments-tbody"></tbody></table>
+    </div>
+  </div>
+  <div id="pay-pending" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Pending Payments (7)</span></div>
+      <table><thead><tr><th>ID</th><th>Student</th><th>Amount</th><th>Due Date</th><th>Days Overdue</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td class="td-mono">TXN-9041</td><td class="td-name">Marco Rossi</td><td style="color:var(--red);font-weight:600;">€120</td><td class="td-mono">Feb 18</td><td><span style="color:var(--red);">8 days</span></td><td class="act-row"><button class="btn btn-sec btn-xs" onclick="toast('📧 Reminder sent!')">Send Reminder</button><button class="btn btn-success btn-xs" onclick="toast('✅ Marked paid')">Mark Paid</button></td></tr>
+        <tr><td class="td-mono">TXN-9052</td><td class="td-name">Lena Fischer</td><td style="color:var(--warn);font-weight:600;">€60</td><td class="td-mono">Feb 22</td><td><span style="color:var(--warn);">4 days</span></td><td class="act-row"><button class="btn btn-sec btn-xs" onclick="toast('📧 Reminder sent!')">Send Reminder</button><button class="btn btn-success btn-xs" onclick="toast('✅ Marked paid')">Mark Paid</button></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <div id="pay-refunds" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header"><span class="table-title">Refund Requests (4)</span></div>
+      <table><thead><tr><th>ID</th><th>Student</th><th>Amount</th><th>Reason</th><th>Requested</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td class="td-mono">REF-441</td><td class="td-name">Marco Rossi</td><td>€60</td><td style="font-size:12px;color:var(--text2);">Session cancelled by tutor</td><td class="td-mono">Today</td><td class="act-row"><button class="btn btn-success btn-xs" onclick="toast('✅ Refund approved!')">Approve</button><button class="btn btn-danger btn-xs" onclick="toast('❌ Refund denied')">Deny</button></td></tr>
+        <tr><td class="td-mono">REF-438</td><td class="td-name">Arjun Patel</td><td>€120</td><td style="font-size:12px;color:var(--text2);">Not satisfied with tutor</td><td class="td-mono">Feb 23</td><td class="act-row"><button class="btn btn-success btn-xs" onclick="toast('✅ Refund approved!')">Approve</button><button class="btn btn-danger btn-xs" onclick="toast('❌ Refund denied')">Deny</button></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     BOOKINGS
+══════════════════════════════════════ -->
+<div class="view" id="view-bookings">
+  <div class="ph">
+    <div><div class="ph-title">Booking Management</div><div class="ph-sub">All pending, confirmed and past bookings — assign tutors, change slots</div></div>
+    <div class="ph-actions"><button class="btn btn-prim btn-sm" onclick="openModal('create_booking')">+ Create Booking</button></div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-gold"><div class="mv">28</div><div class="ml">TOTAL PENDING</div></div>
+    <div class="metric m-green"><div class="mv">17</div><div class="ml">CONFIRMED TODAY</div></div>
+    <div class="metric m-red"><div class="mv">7</div><div class="ml">UNASSIGNED TUTOR</div></div>
+    <div class="metric m-blue"><div class="mv">4</div><div class="ml">RESCHEDULED</div></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">All Bookings</span>
+      <div class="table-actions">
+        <input class="search-sm" placeholder="Search...">
+        <select class="sel-sm"><option>All Types</option><option>Custom</option><option>Package</option><option>Session</option></select>
+        <select class="sel-sm"><option>All Statuses</option><option>Pending</option><option>Confirmed</option><option>Cancelled</option></select>
+      </div>
+    </div>
+    <table><thead><tr><th>ID</th><th>Student</th><th>Type</th><th>Subject</th><th>Tutor</th><th>Slot</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="bookings-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ANALYTICS
+══════════════════════════════════════ -->
+<div class="view" id="view-analytics">
+  <div class="ph">
+    <div><div class="ph-title">Analytics & Reports</div><div class="ph-sub">Full platform data analysis — revenue, students, tutors, subjects</div></div>
+    <div class="ph-actions">
+      <select class="sel-sm"><option>Last 30 days</option><option>Last 90 days</option><option>This Year</option><option>Custom Range</option></select>
+      <button class="btn btn-sec btn-sm">↓ Export PDF Report</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric m-gold"><div class="mv">€8,640</div><div class="ml">THIS MONTH REVENUE</div><div class="ms up">↑ 18% vs prior month</div></div>
+    <div class="metric m-green"><div class="mv">432</div><div class="ml">SESSIONS DELIVERED</div><div class="ms up">↑ 67 more than last month</div></div>
+    <div class="metric m-blue"><div class="mv">341</div><div class="ml">STUDENTS</div><div class="ms up">↑ 42 new this week</div></div>
+    <div class="metric m-purple"><div class="mv">94%</div><div class="ml">SATISFACTION RATE</div><div class="ms up">↑ 2% improvement</div></div>
+  </div>
+  <div class="analytics-grid">
+    <div class="big-chart">
+      <div class="bc-title">Revenue Trend (Last 8 Weeks)</div>
+      <div class="bc-sub">Weekly income from all booking channels</div>
+      <div class="line-chart-wrap">
+        <svg viewBox="0 0 400 100" preserveAspectRatio="none">
+          <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8b84b" stop-opacity="0.3"/><stop offset="100%" stop-color="#e8b84b" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,80 L50,65 L100,55 L150,45 L200,50 L250,30 L300,20 L350,25 L400,15" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <path d="M0,80 L50,65 L100,55 L150,45 L200,50 L250,30 L300,20 L350,25 L400,15 L400,100 L0,100 Z" fill="url(#grad)"/>
+          <circle cx="50" cy="65" r="3" fill="var(--gold)"/>
+          <circle cx="150" cy="45" r="3" fill="var(--gold)"/>
+          <circle cx="250" cy="30" r="3" fill="var(--gold)"/>
+          <circle cx="400" cy="15" r="4" fill="var(--gold)" stroke="var(--bg)" stroke-width="2"/>
+        </svg>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-top:6px;">
+        <span>Week 1</span><span>Week 2</span><span>Week 3</span><span>Week 4</span><span>Week 5</span><span>Week 6</span><span>Week 7</span><span>Week 8</span>
+      </div>
+      <div class="revenue-nums">
+        <div class="rn-item"><div class="rn-val" style="color:var(--gold)">€2,160</div><div class="rn-lbl">BEST WEEK</div></div>
+        <div class="rn-item"><div class="rn-val" style="color:var(--green)">€8,640</div><div class="rn-lbl">MONTH TOTAL</div></div>
+        <div class="rn-item"><div class="rn-val" style="color:var(--blue)">€540</div><div class="rn-lbl">AVG PER DAY</div></div>
+        <div class="rn-item"><div class="rn-val" style="color:var(--purple)">27</div><div class="rn-lbl">SESSIONS / DAY</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" style="margin-bottom:8px;">Top Subjects by Revenue</div>
+      <div class="top-list">
+        <div class="tl-item"><span class="tl-rank">01</span><span class="tl-name">Mathematics</span><span class="tl-val">€2,880</span></div>
+        <div class="tl-item"><span class="tl-rank">02</span><span class="tl-name">Engineering</span><span class="tl-val">€1,920</span></div>
+        <div class="tl-item"><span class="tl-rank">03</span><span class="tl-name">IELTS</span><span class="tl-val">€1,440</span></div>
+        <div class="tl-item"><span class="tl-rank">04</span><span class="tl-name">Programming</span><span class="tl-val">€1,200</span></div>
+        <div class="tl-item"><span class="tl-rank">05</span><span class="tl-name">Physics</span><span class="tl-val">€960</span></div>
+        <div class="tl-item"><span class="tl-rank">06</span><span class="tl-name">Medicine</span><span class="tl-val">€720</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">Top Tutors by Sessions Delivered</div>
+      <div class="chart-sub">This month</div>
+      <div class="bar-chart">
+        <div class="bar-row"><span class="bar-lbl">Dr. Müller</span><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--purple)"></div></div><span class="bar-val">54 sess</span></div>
+        <div class="bar-row"><span class="bar-lbl">Sarah Mitchell</span><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--gold)"></div></div><span class="bar-val">45 sess</span></div>
+        <div class="bar-row"><span class="bar-lbl">Dr. Novak</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--green)"></div></div><span class="bar-val">39 sess</span></div>
+        <div class="bar-row"><span class="bar-lbl">Dr. Weber</span><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--blue)"></div></div><span class="bar-val">33 sess</span></div>
+        <div class="bar-row"><span class="bar-lbl">Prof. Fischer</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--teal)"></div></div><span class="bar-val">25 sess</span></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Student Growth</div>
+      <div class="chart-sub">New registrations per week</div>
+      <div class="sparkline" style="height:60px;align-items:flex-end;">
+        <div class="spark-bar" style="height:35%;background:var(--border3);"></div>
+        <div class="spark-bar" style="height:50%;background:var(--border3);"></div>
+        <div class="spark-bar" style="height:40%;background:var(--border3);"></div>
+        <div class="spark-bar" style="height:70%;background:var(--blue);"></div>
+        <div class="spark-bar" style="height:55%;background:var(--blue);"></div>
+        <div class="spark-bar" style="height:85%;background:var(--gold);"></div>
+        <div class="spark-bar" style="height:100%;background:var(--gold);"></div>
+        <div class="spark-bar" style="height:75%;background:var(--border3);"></div>
+      </div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="rn-item"><div class="rn-val" style="color:var(--green);font-size:20px;">42</div><div class="rn-lbl">THIS WEEK</div></div>
+        <div class="rn-item"><div class="rn-val" style="color:var(--blue);font-size:20px;">341</div><div class="rn-lbl">TOTAL</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SETTINGS
+══════════════════════════════════════ -->
+<div class="view" id="view-settings">
+  <div class="ph">
+    <div><div class="ph-title">Platform Settings</div><div class="ph-sub">Control all platform configurations, pricing, notifications, and permissions</div></div>
+    <div class="ph-actions"><button class="btn btn-prim btn-sm" onclick="toast('✅ Settings saved!')">Save All Changes</button></div>
+  </div>
+  <div class="settings-sections">
+    <div class="settings-card">
+      <div class="settings-card-title">⚙ General Platform Settings</div>
+      <div class="form-row" style="margin-bottom:12px;"><div class="form-grp"><label class="form-lbl">Platform Name</label><input class="form-in" value="One World Classroom"></div><div class="form-grp"><label class="form-lbl">Default Hourly Rate (€)</label><input class="form-in" value="20" type="number"></div></div>
+      <div class="form-row" style="margin-bottom:12px;"><div class="form-grp"><label class="form-lbl">Session Summary Deadline (hrs)</label><input class="form-in" value="24" type="number"></div><div class="form-grp"><label class="form-lbl">Default Session Language</label><select class="form-sel"><option>English (Primary)</option><option>German</option><option>Bilingual</option></select></div></div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-card-title">🔔 Notifications & Alerts</div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Email on New Booking</div><div class="sr-desc">Send confirmation email to student and tutor</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">SMS Session Reminders</div><div class="sr-desc">Send SMS 1h before session starts</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Admin Alert: Payment Overdue</div><div class="sr-desc">Notify admin when payment is 3+ days overdue</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Auto Session Summary Request</div><div class="sr-desc">Automatically prompt tutor for summary after session</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">New Tutor Application Alert</div><div class="sr-desc">Notify admin immediately when tutor applies</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-card-title">💳 Payment Configuration</div>
+      <div class="form-row" style="margin-bottom:12px;"><div class="form-grp"><label class="form-lbl">Payment Gateway</label><select class="form-sel"><option>Stripe (Active)</option><option>PayPal</option><option>Bank Transfer</option></select></div><div class="form-grp"><label class="form-lbl">Currency</label><select class="form-sel"><option>EUR (€)</option><option>USD ($)</option><option>GBP (£)</option></select></div></div>
+      <div class="form-row" style="margin-bottom:0;"><div class="form-grp"><label class="form-lbl">Tutor Payout Rate (%)</label><input class="form-in" value="85" type="number"></div><div class="form-grp"><label class="form-lbl">Refund Window (days)</label><input class="form-in" value="7" type="number"></div></div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-card-title">🔐 Access & Permissions</div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Student Registration Open</div><div class="sr-desc">Allow new students to register</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Tutor Applications Open</div><div class="sr-desc">Accept new tutor applications</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Platform Maintenance Mode</div><div class="sr-desc">Take platform offline for maintenance (redirects to notice page)</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Require 2FA for Admins</div><div class="sr-desc">Enforce two-factor authentication for all admin logins</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+    </div>
+    <div class="danger-zone">
+      <div class="dz-title">⚠ Danger Zone</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(240,83,94,0.15);">
+          <div><div style="font-size:13px;color:var(--text);">Reset All Platform Data</div><div style="font-size:11px;color:var(--text3);">Permanently deletes all students, sessions, and payments</div></div>
+          <button class="btn btn-danger btn-sm" onclick="openModal('confirm_reset')">Reset Platform</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(240,83,94,0.15);">
+          <div><div style="font-size:13px;color:var(--text);">Delete All Inactive Students</div><div style="font-size:11px;color:var(--text3);">Remove accounts with no bookings in 12+ months</div></div>
+          <button class="btn btn-danger btn-sm" onclick="openModal('confirm_delete_inactive')">Delete Inactive</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div><div style="font-size:13px;color:var(--text);">Export Full Database Backup</div><div style="font-size:11px;color:var(--text3);">Download complete JSON backup of all platform data</div></div>
+          <button class="btn btn-sec btn-sm" onclick="toast('📦 Backup initiated...')">Export Backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     AUDIT LOGS
+══════════════════════════════════════ -->
+<div class="view" id="view-logs">
+  <div class="ph">
+    <div><div class="ph-title">Audit Logs</div><div class="ph-sub">Complete record of all admin actions, changes, and system events</div></div>
+    <div class="ph-actions"><button class="btn btn-sec btn-sm" onclick="toast('📋 Logs exported!')">↓ Export Logs</button></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">System Audit Trail</span>
+      <div class="table-actions">
+        <input class="search-sm" placeholder="Filter logs...">
+        <select class="sel-sm"><option>All Actions</option><option>Subject Changes</option><option>Tutor Changes</option><option>Payment Actions</option><option>Settings</option></select>
+        <select class="sel-sm"><option>All Admins</option><option>Super Admin</option></select>
+      </div>
+    </div>
+    <table><thead><tr><th>Timestamp</th><th>Admin</th><th>Action</th><th>Target</th><th>Details</th><th>IP</th></tr></thead>
+    <tbody id="logs-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MOCK EXAM MANAGEMENT
+══════════════════════════════════════ -->
+<div class="view" id="view-mock_mgmt">
+  <div class="ph">
+    <div>
+      <div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--orange);letter-spacing:1.5px;margin-bottom:3px;">BOOKING CHANNEL 4</div>
+      <div class="ph-title">Mock Exam Paper Management</div>
+      <div class="ph-sub">Create, edit, and publish model exam papers. Control session structure, learning outcomes, pricing, and availability.</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-sec btn-sm" onclick="openModal('import_mock')">↑ Import Paper</button>
+      <button class="btn btn-sm" style="background:var(--orange);color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;border:none;cursor:pointer;padding:7px 16px;border-radius:6px;" onclick="openModal('add_mock_paper')">+ New Mock Paper</button>
+    </div>
+  </div>
+
+  <div class="metrics" style="grid-template-columns:repeat(6,1fr);">
+    <div class="metric" style="border-bottom-color:var(--orange);"><div class="mv" style="color:var(--orange);">9</div><div class="ml">TOTAL PAPERS</div></div>
+    <div class="metric m-green"><div class="mv">7</div><div class="ml">PUBLISHED</div></div>
+    <div class="metric m-red"><div class="mv">2</div><div class="ml">DRAFT</div></div>
+    <div class="metric m-gold"><div class="mv">€1,240</div><div class="ml">MOCK REVENUE</div><div class="ms up">↑ This month</div></div>
+    <div class="metric m-blue"><div class="mv">28</div><div class="ml">SESSIONS SOLD</div></div>
+    <div class="metric m-purple"><div class="mv">4.9</div><div class="ml">AVG RATING</div></div>
+  </div>
+
+  <!-- FILTER + TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">All Mock Exam Papers (9)</span>
+      <div class="table-actions">
+        <input class="search-sm" placeholder="Search papers...">
+        <select class="sel-sm">
+          <option>All Subjects</option><option>Engineering</option><option>Mathematics</option>
+          <option>IELTS</option><option>Programming</option><option>Physics</option>
+          <option>Chemistry</option><option>Biology</option><option>Medicine</option><option>Prompt Engineering</option>
+        </select>
+        <select class="sel-sm">
+          <option>All Levels</option><option>University</option><option>A-Level / School</option>
+          <option>Exam Prep</option><option>Professional</option>
+        </select>
+        <select class="sel-sm"><option>All Status</option><option>Published</option><option>Draft</option></select>
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Paper</th><th>Subject</th><th>Level</th><th>Sessions</th><th>Total Hrs</th>
+        <th>Questions</th><th>Price</th><th>Sold</th><th>Revenue</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="mock-papers-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- SESSION STRUCTURE EDITOR -->
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-title">
+      📋 Session Structure Editor
+      <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;font-weight:400;">Select a paper above to edit its sessions</span>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;color:var(--text3);font-size:13px;">
+      Click any paper row → Edit Sessions → Add/remove sessions, update learning outcomes, and set durations
+    </div>
+  </div>
+
+  <!-- LEVEL OVERVIEW GRID -->
+  <div style="margin-bottom:14px;font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--text);">Papers by Level</div>
+  <div class="grid2" style="margin-bottom:20px;">
+    <div class="panel">
+      <div class="panel-title" style="font-size:13px;">🎓 University Papers (5)</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <span style="font-size:12px;color:var(--text);">Thermodynamics — Model Paper A</span>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€147</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <span style="font-size:12px;color:var(--text);">Calculus & Differential Equations</span>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€98</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <span style="font-size:12px;color:var(--text);">Algorithms & Data Structures</span>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€98</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <span style="font-size:12px;color:var(--text);">Cell Biology & Genetics</span>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€98</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <span style="font-size:12px;color:var(--text);">Physiology & Medicine</span>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-pending">Draft</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€98</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" style="font-size:13px;">Other Level Papers (4)</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <div><span style="font-size:12px;color:var(--text);">A-Level Chemistry</span><span style="font-size:10px;color:var(--text3);margin-left:8px;">School</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€78</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <div><span style="font-size:12px;color:var(--text);">A-Level Physics</span><span style="font-size:10px;color:var(--text3);margin-left:8px;">School</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€78</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <div><span style="font-size:12px;color:var(--text);">IELTS Academic Full Paper</span><span style="font-size:10px;color:var(--text3);margin-left:8px;">Exam Prep</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-active">Published</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€147</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--bg3);border-radius:6px;">
+          <div><span style="font-size:12px;color:var(--text);">Prompt Engineering Certification</span><span style="font-size:10px;color:var(--text3);margin-left:8px;">Professional</span></div>
+          <div style="display:flex;gap:6px;align-items:center;"><span class="badge badge-pending">Draft</span><span style="color:var(--gold);font-size:11px;font-weight:600;">€78</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING ANALYTICS -->
+  <div class="panel">
+    <div class="panel-title">📊 Mock Exam Bookings This Month</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+      <div style="background:var(--bg3);border-radius:7px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">TOP PAPER</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">IELTS Academic</div>
+        <div style="color:var(--gold);font-size:18px;font-weight:700;font-family:'Syne',sans-serif;">9 bookings</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:7px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">TOP LEVEL</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">University</div>
+        <div style="color:var(--blue);font-size:18px;font-weight:700;font-family:'Syne',sans-serif;">18 bookings</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:7px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">AVG SESSIONS BOOKED</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Per student</div>
+        <div style="color:var(--green);font-size:18px;font-weight:700;font-family:'Syne',sans-serif;">2.3 sessions</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:7px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">CONVERSION RATE</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Paper view → booking</div>
+        <div style="color:var(--orange);font-size:18px;font-weight:700;font-family:'Syne',sans-serif;">34%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:12px 18px;border-radius:8px;font-size:13px;z-index:500;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);animation:slideUp 0.2s ease;"></div>
+
+<script>
+// ── CLOCK ──
+function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+setInterval(updateClock,1000);updateClock();
+
+// ── NAVIGATION ──
+function nav(id, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const v=document.getElementById('view-'+id);
+  if(v) v.classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  // lazy render
+  if(id==='subjects') renderSubjAdmin();
+  if(id==='sessions_mgmt') renderSessMgmt();
+  if(id==='tutors') renderTutors();
+  if(id==='students') renderStudents();
+  if(id==='payments') renderPayments();
+  if(id==='bookings') renderBookings();
+  if(id==='live_sessions') renderLiveSessions();
+  if(id==='packages_mgmt') renderPkgMgmt();
+  if(id==='logs') renderLogs();
+  if(id==='tutors') renderPayouts();
+  if(id==='mock_mgmt') renderMockAdmin();
+}
+
+// ── TABS ──
+function switchTab(btn, targetId){
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const prefix = targetId.split('-')[0]+'-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(el=>{if(el.classList.contains('tab-btn'))return;el.style.display='none';});
+  const target = document.getElementById(targetId);
+  if(target) target.style.display = target.tagName==='DIV' ? 'block' : 'grid';
+}
+
+// ── TOAST ──
+function toast(msg, dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',dur);
+}
+
+// ── MODAL ──
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===document.getElementById('modal-bg'))closeModal();});
+
+function openModal(type, a, b, c, d){
+  const mi = document.getElementById('modal-inner');
+  let html = '';
+
+  if(type==='add_subject'){
+    html=`<div class="modal-title">Add New Subject</div><div class="modal-sub">Create a new subject with content and settings</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Subject Name</label><input class="form-in" placeholder="e.g. Medicine"></div><div class="form-grp"><label class="form-lbl">Icon</label><input class="form-in" value="⊕"></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Category</label><select class="form-sel"><option>University</option><option>School</option><option>Professional</option><option>Language</option><option>Exam Prep</option></select></div><div class="form-grp"><label class="form-lbl">Difficulty Tag</label><select class="form-sel"><option>All Levels</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div></div>
+    <div class="form-grp"><label class="form-lbl">Short Description</label><input class="form-in" placeholder="Brief description for students"></div>
+    <div class="form-grp"><label class="form-lbl">Available Packages</label><div style="display:flex;gap:8px;margin-top:4px;"><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> 3H</label><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> 6H</label><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> 12H</label></div></div>
+    <div class="form-grp"><label class="form-lbl">Initial Status</label><select class="form-sel"><option>Active (visible to students)</option><option>Draft (hidden)</option></select></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Subject added successfully!')">Add Subject</button></div>`;
+  }
+  else if(type==='add_session'){
+    html=`<div class="modal-title">Add New Session</div><div class="modal-sub">Add a session to an existing subject</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Subject</label><select class="form-sel"><option>Mathematics</option><option>Engineering</option><option>IELTS</option><option>Programming</option><option>Physics</option></select></div><div class="form-grp"><label class="form-lbl">Level</label><select class="form-sel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div></div>
+    <div class="form-grp"><label class="form-lbl">Session Title</label><input class="form-in" placeholder="e.g. Integration by Parts"></div>
+    <div class="form-grp"><label class="form-lbl">Session Description</label><textarea class="form-ta" placeholder="What will students learn in this session?"></textarea></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Duration (mins)</label><select class="form-sel"><option>60</option><option>90</option><option>120</option></select></div><div class="form-grp"><label class="form-lbl">Price (€)</label><input class="form-in" type="number" value="20"></div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Session added!')">Add Session</button></div>`;
+  }
+  else if(type==='add_package'){
+    html=`<div class="modal-title">Create New Package</div><div class="modal-sub">Design a structured pre-built package for students</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Subject</label><select class="form-sel"><option>Mathematics</option><option>Engineering</option><option>IELTS</option><option>Programming</option></select></div><div class="form-grp"><label class="form-lbl">Hours</label><select class="form-sel"><option>3 Hours — €60</option><option>6 Hours — €120</option><option>12 Hours — €240</option></select></div></div>
+    <div class="form-grp"><label class="form-lbl">Package Name</label><input class="form-in" placeholder="e.g. Calculus Exam Sprint"></div>
+    <div class="form-grp"><label class="form-lbl">Focus / What's Covered</label><textarea class="form-ta" placeholder="Describe what this package covers and who it's for..."></textarea></div>
+    <div class="form-grp"><label class="form-lbl">Delivery Options</label><div style="display:flex;flex-direction:column;gap:5px;margin-top:4px;"><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> Multiple 60-min sessions</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> Multiple 120-min sessions</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> Multiple 180-min sessions</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><input type="checkbox" checked> Mixed formats</label></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Level</label><select class="form-sel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div><div class="form-grp"><label class="form-lbl">Status</label><select class="form-sel"><option>Active</option><option>Draft</option></select></div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Package created!')">Create Package</button></div>`;
+  }
+  else if(type==='add_tutor'){
+    html=`<div class="modal-title">Add New Tutor</div><div class="modal-sub">Register a new PhD-level tutor</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Full Name</label><input class="form-in" placeholder="Dr. Jane Smith"></div><div class="form-grp"><label class="form-lbl">Title</label><select class="form-sel"><option>Dr.</option><option>Prof.</option><option>Mr.</option><option>Ms.</option><option>Mrs.</option></select></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Email</label><input class="form-in" type="email" placeholder="tutor@email.com"></div><div class="form-grp"><label class="form-lbl">Phone</label><input class="form-in" placeholder="+49 ..."></div></div>
+    <div class="form-grp"><label class="form-lbl">PhD / Degree</label><input class="form-in" placeholder="e.g. PhD Mathematics, TU Munich"></div>
+    <div class="form-grp"><label class="form-lbl">Subjects</label><select class="form-sel" multiple style="height:90px;"><option>Mathematics</option><option>Engineering</option><option>Physics</option><option>Chemistry</option><option>Medicine</option><option>IELTS</option><option>Programming</option></select></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Hourly Rate (€)</label><input class="form-in" type="number" value="17"></div><div class="form-grp"><label class="form-lbl">Status</label><select class="form-sel"><option>Active</option><option>Pending Review</option></select></div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Tutor added!')">Add Tutor</button></div>`;
+  }
+  else if(type==='schedule_session'){
+    html=`<div class="modal-title">Schedule a Session</div><div class="modal-sub">Manually schedule a tutoring session</div>
+    <div class="info-box">Sessions booked by students are auto-scheduled. Use this to manually add sessions.</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Student</label><select class="form-sel"><option>Julia Schneider</option><option>Ahmed Ali</option><option>Priya Singh</option><option>Marco Rossi</option></select></div><div class="form-grp"><label class="form-lbl">Tutor</label><select class="form-sel"><option>Dr. Müller</option><option>Prof. Schmidt</option><option>Dr. Weber</option><option>Sarah Mitchell</option></select></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Subject</label><select class="form-sel"><option>Mathematics</option><option>Engineering</option><option>IELTS</option></select></div><div class="form-grp"><label class="form-lbl">Session</label><select class="form-sel"><option>Integration Techniques</option><option>Eigenvalues</option><option>Writing Task 2</option></select></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Date</label><input class="form-in" type="date"></div><div class="form-grp"><label class="form-lbl">Time</label><input class="form-in" type="time" value="10:00"></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Duration</label><select class="form-sel"><option>60 minutes</option><option>120 minutes</option><option>180 minutes</option></select></div><div class="form-grp"><label class="form-lbl">Channel</label><select class="form-sel"><option>Custom Problem</option><option>Package Session</option><option>Individual Session</option></select></div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Session scheduled!')">Schedule Session</button></div>`;
+  }
+  else if(type==='manual_payment'){
+    html=`<div class="modal-title">Manual Payment Entry</div><div class="modal-sub">Record a payment not captured by the payment gateway</div>
+    <div class="warn-box">⚠ Manual entries are final and will appear in reports. Double-check before saving.</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Student</label><select class="form-sel"><option>Julia Schneider</option><option>Ahmed Ali</option><option>Marco Rossi</option></select></div><div class="form-grp"><label class="form-lbl">Amount (€)</label><input class="form-in" type="number" placeholder="120"></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Payment Method</label><select class="form-sel"><option>Bank Transfer</option><option>Cash</option><option>Stripe Manual</option><option>PayPal</option></select></div><div class="form-grp"><label class="form-lbl">Date</label><input class="form-in" type="date"></div></div>
+    <div class="form-grp"><label class="form-lbl">Reference / Note</label><input class="form-in" placeholder="Transaction ID or note"></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Payment recorded!')">Record Payment</button></div>`;
+  }
+  else if(type==='reject_tutor'){
+    html=`<div class="modal-title">Reject Application</div><div class="modal-sub">Send rejection to ${a||'tutor'}</div>
+    <div class="form-grp"><label class="form-lbl">Reason for Rejection</label><textarea class="form-ta" placeholder="e.g. Credentials could not be verified. Please reapply with original certificates."></textarea></div>
+    <div class="form-grp"><label class="form-lbl">Notify Applicant</label><select class="form-sel"><option>Send rejection email</option><option>No notification</option></select></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="closeModal();toast('❌ Application rejected')">Reject & Notify</button></div>`;
+  }
+  else if(type==='add_mock_paper'){
+    html=`<div class="modal-title">Create New Mock Exam Paper</div><div class="modal-sub">Build a model exam paper with sessions and learning outcomes</div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Paper Title</label><input class="form-in" placeholder="e.g. Thermodynamics — Model Paper A"></div><div class="form-grp"><label class="form-lbl">Subject</label><select class="form-sel"><option>Engineering</option><option>Mathematics</option><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Medicine</option><option>IELTS</option><option>Programming</option><option>Prompt Engineering</option></select></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Exam Level</label><select class="form-sel"><option>University</option><option>A-Level / School</option><option>Exam Prep</option><option>Professional</option></select></div><div class="form-grp"><label class="form-lbl">Mark as New</label><select class="form-sel"><option>Yes — show NEW badge</option><option>No</option></select></div></div>
+    <div class="form-grp"><label class="form-lbl">Paper Description</label><textarea class="form-ta" placeholder="What topics does this paper cover? What will students gain?"></textarea></div>
+    <div class="form-row3"><div class="form-grp"><label class="form-lbl">Total Questions</label><input class="form-in" type="number" value="5"></div><div class="form-grp"><label class="form-lbl">Total Marks</label><input class="form-in" type="number" value="50"></div><div class="form-grp"><label class="form-lbl">Full Package Price (€)</label><input class="form-in" type="number" value="98"></div></div>
+    <div class="info-box">💡 After creating the paper, use "Edit Sessions" to add individual session titles, learning outcomes, and durations.</div>
+    <div class="form-grp"><label class="form-lbl">Initial Status</label><select class="form-sel"><option>Draft (hidden from students)</option><option>Published (visible)</option></select></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Mock paper created! Now add sessions.')">Create Paper</button></div>`;
+  }
+  else if(type==='edit_mock_paper'){
+    html=`<div class="modal-title">Edit: ${a||'Mock Paper'}</div><div class="modal-sub">Update paper details, pricing, and visibility</div>
+    <div class="form-grp"><label class="form-lbl">Paper Title</label><input class="form-in" value="${a||''}"></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Subject</label><select class="form-sel"><option>Engineering</option><option>Mathematics</option><option>IELTS</option><option>Physics</option><option>Chemistry</option><option>Programming</option></select></div><div class="form-grp"><label class="form-lbl">Exam Level</label><select class="form-sel"><option>University</option><option>A-Level / School</option><option>Exam Prep</option><option>Professional</option></select></div></div>
+    <div class="form-grp"><label class="form-lbl">Description</label><textarea class="form-ta"></textarea></div>
+    <div class="form-row3"><div class="form-grp"><label class="form-lbl">Questions</label><input class="form-in" type="number"></div><div class="form-grp"><label class="form-lbl">Total Marks</label><input class="form-in" type="number"></div><div class="form-grp"><label class="form-lbl">Price (€)</label><input class="form-in" type="number"></div></div>
+    <div class="form-row"><div class="form-grp"><label class="form-lbl">Status</label><select class="form-sel"><option>Published</option><option>Draft</option></select></div><div class="form-grp"><label class="form-lbl">Show NEW Badge</label><select class="form-sel"><option>No</option><option>Yes</option></select></div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Paper updated!')">Save Changes</button></div>`;
+  }
+  else if(type==='edit_mock_sessions'){
+    html=`<div class="modal-title">Edit Sessions: ${a||'Mock Paper'}</div><div class="modal-sub">Manage individual sessions within this paper</div>
+    <div class="info-box">ℹ Questions are <strong>never shown</strong> to students in listings or details. Only learning outcomes are displayed. Questions are revealed during live sessions.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:12px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--text);">Session 1</span><div style="display:flex;gap:5px;"><button class="btn btn-sec btn-xs" onclick="toast('✎ Editing session 1')">Edit</button><button class="btn btn-danger btn-xs" onclick="toast('🗑 Session removed')">Remove</button></div></div>
+        <div class="form-row"><div class="form-grp"><label class="form-lbl">Session Title</label><input class="form-in" value="Foundations & First Law"></div><div class="form-grp"><label class="form-lbl">Duration</label><select class="form-sel"><option>1 hr</option><option selected>2 hrs</option><option>3 hrs</option></select></div></div>
+        <div class="form-grp"><label class="form-lbl">Tagline</label><input class="form-in" value="Thermodynamic fundamentals, heat engines, and Otto cycle"></div>
+        <div class="form-grp"><label class="form-lbl">Learning Outcomes (one per line)</label><textarea class="form-ta" style="min-height:60px;">Define and apply core thermodynamic concepts&#10;Derive and use the First Law for closed systems&#10;Analyse heat engine schematics</textarea></div>
+      </div>
+      <button class="btn btn-sec btn-sm" style="width:100%;border-style:dashed;" onclick="toast('+ New session row added')">+ Add Another Session</button>
+    </div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Sessions saved!')">Save Sessions</button></div>`;
+  }
+  else if(type==='import_mock'){
+    html=`<div class="modal-title">Import Mock Exam Paper</div><div class="modal-sub">Upload a JSON or CSV paper definition</div>
+    <div class="warn-box">⚠ JSON format must match the OWC mock paper schema. Sessions must include title, tagline, duration, and learning outcomes array.</div>
+    <div class="form-grp"><label class="form-lbl">Upload File</label><input class="form-in" type="file" accept=".json,.csv" style="padding:6px;"></div>
+    <div class="form-grp"><label class="form-lbl">Or Paste JSON</label><textarea class="form-ta" style="min-height:100px;font-family:'JetBrains Mono',monospace;font-size:11px;" placeholder='{"title":"...", "subject":"...", "sessions":[...]}'></textarea></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Paper imported!')">Import</button></div>`;
+  }
+  else if(type==='confirm_delete_inactive'){
+    html=`<div class="confirm-box"><div class="confirm-icon">🗑</div><div class="confirm-msg">Delete All Inactive Students?</div><div class="confirm-sub">Students with no bookings in 12+ months will be permanently removed.</div></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="closeModal();toast('🗑 Inactive students removed')">Delete</button></div>`;
+  }
+  else if(type==='confirm_reset'){
+    html=`<div class="confirm-box"><div class="confirm-icon">⚠️</div><div class="confirm-msg">Reset All Platform Data?</div><div class="confirm-sub" style="margin-bottom:16px;">This will permanently delete ALL students, sessions, bookings, and payments. This cannot be undone.</div></div>
+    <div class="form-grp"><label class="form-lbl">Type "RESET" to confirm</label><input class="form-in" placeholder="RESET"></div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="closeModal();toast('⚠ Action blocked — type RESET to confirm')">I Understand, Reset</button></div>`;
+  }
+  else if(type==='quick_add'){
+    html=`<div class="modal-title">Quick Add</div><div class="modal-sub">Jump to any add form</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button onclick="closeModal();openModal('add_subject')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">◫ Add New Subject</button>
+      <button onclick="closeModal();openModal('add_session')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">☷ Add New Session</button>
+      <button onclick="closeModal();openModal('add_package')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">◉ Create New Package</button>
+      <button onclick="closeModal();openModal('add_tutor')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">⊙ Add New Tutor</button>
+      <button onclick="closeModal();openModal('schedule_session')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">◷ Schedule a Session</button>
+      <button onclick="closeModal();openModal('manual_payment')" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px;border-radius:7px;cursor:pointer;font-size:13px;text-align:left;font-family:'Outfit',sans-serif;">€ Record Manual Payment</button>
+    </div>
+    <div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Close</button></div>`;
+  }
+  else {
+    html=`<div class="modal-title">${type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</div><div class="modal-sub">Form coming soon</div><div class="modal-foot"><button class="btn btn-sec" onclick="closeModal()">Close</button><button class="btn btn-prim" onclick="closeModal();toast('✅ Saved!')">Save</button></div>`;
+  }
+
+  mi.innerHTML = html;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+// ── MOCK ADMIN DATA ──
+const ADMIN_MOCK_PAPERS = [
+  {title:'Thermodynamics — Model Paper A',subject:'Engineering',level:'University',sessions:3,hrs:6,questions:6,price:147,sold:6,status:'published'},
+  {title:'Calculus & Differential Equations',subject:'Mathematics',level:'University',sessions:2,hrs:4,questions:5,price:98,sold:8,status:'published'},
+  {title:'Algorithms & Data Structures',subject:'Programming',level:'University',sessions:2,hrs:4,questions:5,price:98,sold:5,status:'published'},
+  {title:'Cell Biology & Genetics',subject:'Biology',level:'University',sessions:2,hrs:4,questions:6,price:98,sold:3,status:'published'},
+  {title:'A-Level Chemistry',subject:'Chemistry',level:'A-Level / School',sessions:2,hrs:3,questions:6,price:78,sold:4,status:'published'},
+  {title:'A-Level Physics',subject:'Physics',level:'A-Level / School',sessions:2,hrs:3,questions:7,price:78,sold:3,status:'published'},
+  {title:'IELTS Academic Full Paper',subject:'IELTS',level:'Exam Prep',sessions:3,hrs:6,questions:40,price:147,sold:9,status:'published'},
+  {title:'Physiology & Medicine',subject:'Medicine',level:'University',sessions:2,hrs:4,questions:5,price:98,sold:0,status:'draft'},
+  {title:'Prompt Engineering Certification',subject:'Prompt Engineering',level:'Professional',sessions:2,hrs:3,questions:4,price:78,sold:0,status:'draft'},
+];
+
+function renderMockAdmin(){
+  const tb = document.getElementById('mock-papers-tbody');
+  if(!tb||tb.children.length>0) return;
+  tb.innerHTML = ADMIN_MOCK_PAPERS.map((p,i)=>`<tr>
+    <td class="td-name">${p.title}</td>
+    <td><span class="badge badge-subject" style="font-size:9px;">${p.subject}</span></td>
+    <td><span style="font-size:10px;color:var(--text2);">${p.level}</span></td>
+    <td class="td-mono">${p.sessions}</td>
+    <td class="td-mono">${p.hrs}h</td>
+    <td class="td-mono">${p.questions}</td>
+    <td style="color:var(--gold);font-weight:600;">€${p.price}</td>
+    <td class="td-mono">${p.sold}</td>
+    <td style="color:var(--green);font-weight:600;">€${p.sold*p.price}</td>
+    <td><span class="badge ${p.status==='published'?'badge-active':'badge-pending'}">${p.status}</span></td>
+    <td><div class="act-row">
+      <button class="act-btn edit" title="Edit Paper" onclick="openModal('edit_mock_paper','${p.title}')">✎</button>
+      <button class="act-btn view" title="Edit Sessions" onclick="openModal('edit_mock_sessions','${p.title}')">☷</button>
+      <button class="act-btn tog" title="Toggle Status" onclick="toast('↻ ${p.title} status toggled')">◎</button>
+      <button class="act-btn del" title="Delete" onclick="toast('🗑 Paper removed')">✕</button>
+    </div></td>
+  </tr>`).join('');
+}
+const SUBJECTS_DATA = [
+  {id:'math',icon:'∫',name:'Mathematics',sessions:10,tutors:3,active:true,bookings:144},
+  {id:'eng',icon:'⚙',name:'Engineering',sessions:10,tutors:3,active:true,bookings:96},
+  {id:'med',icon:'⊕',name:'Medicine',sessions:10,tutors:2,active:true,bookings:72},
+  {id:'prompt',icon:'◎',name:'Prompt Engineering',sessions:10,tutors:2,active:true,bookings:48},
+  {id:'prog',icon:'⌨',name:'Programming',sessions:10,tutors:3,active:true,bookings:60},
+  {id:'bio',icon:'❧',name:'Biology',sessions:10,tutors:2,active:true,bookings:36},
+  {id:'phys',icon:'⊛',name:'Physics',sessions:10,tutors:3,active:true,bookings:48},
+  {id:'chem',icon:'⋈',name:'Chemistry',sessions:10,tutors:2,active:true,bookings:30},
+  {id:'ielts',icon:'✎',name:'IELTS',sessions:10,tutors:3,active:true,bookings:72},
+  {id:'s1',icon:'①',name:'School Subject 1',sessions:10,tutors:2,active:true,bookings:18},
+  {id:'s2',icon:'②',name:'School Subject 2',sessions:10,tutors:2,active:true,bookings:14},
+  {id:'s3',icon:'③',name:'School Subject 3',sessions:10,tutors:2,active:true,bookings:12},
+  {id:'s4',icon:'④',name:'School Subject 4',sessions:10,tutors:2,active:false,bookings:5},
+  {id:'s5',icon:'⑤',name:'School Subject 5',sessions:10,tutors:2,active:false,bookings:3},
+  {id:'stats',icon:'∑',name:'Statistics',sessions:10,tutors:2,active:true,bookings:42},
+  {id:'econ',icon:'◈',name:'Economics',sessions:10,tutors:2,active:true,bookings:28},
+  {id:'lang',icon:'◐',name:'German Language',sessions:10,tutors:2,active:true,bookings:20},
+  {id:'cs',icon:'⊞',name:'Computer Science',sessions:10,tutors:2,active:true,bookings:36},
+  {id:'bus',icon:'◉',name:'Business',sessions:10,tutors:2,active:true,bookings:24},
+  {id:'bio2',icon:'❦',name:'Environmental Sci.',sessions:8,tutors:1,active:true,bookings:10},
+];
+
+const TUTORS_DATA = [
+  {name:'Dr. Müller',degree:'PhD Mathematics, TU Munich',subjects:['Math','Stats'],rating:4.9,sessions:54,color:'#4a8cf7'},
+  {name:'Prof. Schmidt',degree:'PhD Analysis, Heidelberg',subjects:['Math','Physics'],rating:4.8,sessions:38,color:'#3ecf8e'},
+  {name:'Dr. Weber',degree:'PhD Thermo, RWTH Aachen',subjects:['Eng'],rating:4.7,sessions:33,color:'#f59b45'},
+  {name:'Sarah Mitchell',degree:'MA IELTS, Cambridge',subjects:['IELTS'],rating:4.9,sessions:45,color:'#e8b84b'},
+  {name:'Dr. Novak',degree:'PhD CS, TU Berlin',subjects:['Prog','CS'],rating:4.8,sessions:39,color:'#9b72f5'},
+  {name:'Dr. Krause',degree:'MD, Charité Berlin',subjects:['Med'],rating:4.6,sessions:22,color:'#f0535e'},
+  {name:'Prof. Hansen',degree:'PhD Physics, Kiel',subjects:['Physics'],rating:4.7,sessions:28,color:'#38c4e8'},
+  {name:'Dr. Braun',degree:'PhD Chemistry, LMU',subjects:['Chem'],rating:4.5,sessions:20,color:'#fb923c'},
+];
+
+const STUDENTS_DATA = [
+  {name:'Julia Schneider',email:'j.schneider@tum.de',field:'Engineering',bookings:8,spent:360,joined:'Jan 2026',status:'active'},
+  {name:'Ahmed Ali',email:'ahmed.ali@fu-berlin.de',field:'IELTS',bookings:4,spent:180,joined:'Feb 2026',status:'active'},
+  {name:'Priya Singh',email:'p.singh@lmu.de',field:'Programming',bookings:6,spent:240,joined:'Jan 2026',status:'active'},
+  {name:'Marco Rossi',email:'m.rossi@rwth.de',field:'Mathematics',bookings:3,spent:120,joined:'Feb 2026',status:'active'},
+  {name:'Lena Fischer',email:'l.fischer@kit.edu',field:'Physics',bookings:5,spent:200,joined:'Dec 2025',status:'active'},
+  {name:'Arjun Patel',email:'a.patel@tu-berlin.de',field:'Medicine',bookings:2,spent:60,joined:'Feb 2026',status:'active'},
+  {name:'Sofia Bauer',email:'s.bauer@uni-koeln.de',field:'Biology',bookings:1,spent:20,joined:'Feb 2026',status:'inactive'},
+  {name:'Max Weber',email:'m.weber@freiburg.de',field:'Chemistry',bookings:0,spent:0,joined:'Feb 2026',status:'inactive'},
+];
+
+// ── RENDERERS ──
+function renderSubjAdmin(){
+  const g = document.getElementById('subj-admin-grid');
+  if(!g||g.children.length>1) return;
+  g.innerHTML = SUBJECTS_DATA.map(s=>`
+    <div class="subj-card">
+      <div class="sc-top">
+        <span class="sc-icon">${s.icon}</span>
+        <label class="toggle"><input type="checkbox" ${s.active?'checked':''} onchange="toast(this.checked?'✅ ${s.name} activated':'⚠ ${s.name} deactivated')"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-stats"><span>${s.sessions} sessions</span><span>${s.tutors} tutors</span><span>${s.bookings} bookings</span></div>
+      <div style="margin-top:4px;">${s.active?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Inactive</span>'}</div>
+      <div class="sc-actions">
+        <button class="btn btn-sec btn-xs" onclick="openModal('edit_subject','${s.id}')">✎ Edit</button>
+        <button class="btn btn-sec btn-xs" onclick="openModal('add_session')">+ Session</button>
+        <button class="btn btn-danger btn-xs" onclick="toast('🗑 ${s.name} removed')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSessMgmt(){
+  const tb = document.getElementById('sess-mgmt-tbody');
+  if(!tb||tb.children.length>0) return;
+  const samples = ['Limits & Continuity','Integration Techniques','Eigenvalues','Thermodynamics I Basics','IELTS Writing Task 2','Python Fundamentals','Newton\'s Laws','Cell Biology','Organic Chemistry','Hypothesis Testing','Prompt Chain-of-Thought','Brayton Cycle','Partial Derivatives','Linear Regression','Grammar B2'];
+  const subjects = ['Mathematics','Mathematics','Mathematics','Engineering','IELTS','Programming','Physics','Biology','Chemistry','Statistics','Prompt Eng.','Engineering','Mathematics','Statistics','IELTS'];
+  const tagIds = ['math','math','math','eng','ielts','prog','phys','bio','chem','math','prompt','eng','math','math','ielts'];
+  tb.innerHTML = samples.map((s,i)=>`<tr>
+    <td class="td-mono">${String(i+1).padStart(3,'0')}</td>
+    <td class="td-name">${s}</td>
+    <td><span class="badge badge-subject tag-${tagIds[i]}" style="background:rgba(255,255,255,0.05);color:var(--text2);">${subjects[i]}</span></td>
+    <td><span class="badge ${i%3===0?'badge-active':i%3===1?'badge-verified':'badge-pending'}" style="font-size:9px;">${['Beginner','Intermediate','Advanced'][i%3]}</span></td>
+    <td class="td-mono">60 min</td>
+    <td style="color:var(--gold);font-weight:600;">€20</td>
+    <td class="td-mono">${10+i*3}</td>
+    <td>${i%7===5?'<span class="badge badge-inactive">Inactive</span>':'<span class="badge badge-active">Active</span>'}</td>
+    <td><div class="act-row"><button class="act-btn edit" onclick="openModal('edit_session')">✎</button><button class="act-btn tog" onclick="toast('↻ Status toggled')">◎</button><button class="act-btn del" onclick="toast('🗑 Session removed')">✕</button></div></td>
+  </tr>`).join('');
+}
+
+function renderPkgMgmt(){
+  const tb = document.getElementById('pkg-mgmt-tbody');
+  if(!tb||tb.children.length>0) return;
+  const pkgs=[
+    {name:'Calculus Exam Sprint',subj:'Mathematics',hrs:3,price:60,sold:24,formats:'3×60 · 1×180'},
+    {name:'Focused Exam Prep – Analysis I',subj:'Mathematics',hrs:6,price:120,sold:48,formats:'6×60 · 3×120 · 2×180'},
+    {name:'Comprehensive Analysis Review',subj:'Mathematics',hrs:12,price:240,sold:18,formats:'12×60 · 6×120 · mix'},
+    {name:'Thermodynamics Bootcamp',subj:'Engineering',hrs:6,price:120,sold:20,formats:'6×60 · 3×120'},
+    {name:'Full Thermodynamics Mastery',subj:'Engineering',hrs:12,price:240,sold:8,formats:'12×60 · 6×120 · mix'},
+    {name:'Python Starter Pack',subj:'Programming',hrs:3,price:60,sold:32,formats:'3×60 · 1×180'},
+    {name:'IELTS Band 7+ Intensive',subj:'IELTS',hrs:12,price:240,sold:15,formats:'12×60 · 6×120 · mix'},
+  ];
+  tb.innerHTML = pkgs.map((p,i)=>`<tr>
+    <td class="td-name">${p.name}</td>
+    <td><span class="badge badge-subject" style="background:rgba(255,255,255,0.05);color:var(--text2);">${p.subj}</span></td>
+    <td><span class="badge ${p.hrs===3?'badge-active':p.hrs===6?'badge-scheduled':'badge-verified'}">${p.hrs}H</span></td>
+    <td style="color:var(--gold);font-weight:600;">€${p.price}</td>
+    <td class="td-mono" style="font-size:10px;">${p.formats}</td>
+    <td class="td-mono">${p.sold}</td>
+    <td style="color:var(--green);font-weight:600;">€${p.sold*p.price}</td>
+    <td><span class="badge badge-active">Active</span></td>
+    <td><div class="act-row"><button class="act-btn edit" onclick="openModal('add_package')">✎</button><button class="act-btn tog" onclick="toast('↻ Status toggled')">◎</button><button class="act-btn del" onclick="toast('🗑 Package removed')">✕</button></div></td>
+  </tr>`).join('');
+}
+
+function renderTutors(){
+  const g = document.getElementById('tutors-all');
+  if(!g||g.children.length>0) return;
+  g.innerHTML = TUTORS_DATA.map(t=>`
+    <div class="tutor-card">
+      <div class="tc-head">
+        <div class="tc-av" style="background:${t.color}">${t.name.split(' ').slice(-1)[0].substring(0,2)}</div>
+        <div><div class="tc-name">${t.name}</div><div class="tc-deg">${t.degree}</div><div class="tc-stars">${'★'.repeat(5)} <span style="color:var(--text2);font-size:10px;">${t.rating}</span></div></div>
+      </div>
+      <div class="tc-stats">
+        <div class="tc-stat"><div class="tc-sv">${t.sessions}</div><div class="tc-sl">SESS.</div></div>
+        <div class="tc-stat"><div class="tc-sv">${t.rating}</div><div class="tc-sl">RATING</div></div>
+        <div class="tc-stat"><div class="tc-sv">€${t.sessions*17}</div><div class="tc-sl">DUE</div></div>
+      </div>
+      <div class="tc-subjs">${t.subjects.map(s=>`<span class="badge badge-subject" style="font-size:9px;">${s}</span>`).join('')}</div>
+      <div class="tc-actions">
+        <button class="btn btn-sec btn-xs" onclick="openModal('edit_tutor')">✎ Edit</button>
+        <button class="btn btn-sec btn-xs" onclick="toast('📅 Schedule viewed')">Availability</button>
+        <button class="btn btn-danger btn-xs" onclick="toast('⚠ Tutor suspended')">Suspend</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderPayouts(){
+  const tb = document.getElementById('payout-tbody');
+  if(!tb) return;
+  tb.innerHTML = TUTORS_DATA.map(t=>`<tr>
+    <td class="td-name">${t.name}</td>
+    <td class="td-mono">${t.sessions}</td>
+    <td class="td-mono">${t.sessions}h</td>
+    <td class="td-mono">€17/hr</td>
+    <td style="color:var(--gold);font-weight:600;">€${t.sessions*17}</td>
+    <td><span class="badge badge-pending">Pending</span></td>
+    <td><button class="btn btn-success btn-xs" onclick="toast('💸 Payout sent to ${t.name}!')">Pay Now</button></td>
+  </tr>`).join('');
+}
+
+function renderStudents(){
+  const tb = document.getElementById('students-tbody');
+  if(!tb||tb.children.length>0) return;
+  tb.innerHTML = STUDENTS_DATA.map((s,i)=>`<tr>
+    <td class="td-mono">${String(i+1).padStart(3,'0')}</td>
+    <td class="td-name">${s.name}</td>
+    <td class="td-mono" style="font-size:11px;">${s.email}</td>
+    <td><span class="badge badge-subject" style="font-size:9px;">${s.field}</span></td>
+    <td class="td-mono">${s.bookings}</td>
+    <td style="color:var(--gold);font-weight:600;">€${s.spent}</td>
+    <td class="td-mono">${s.joined}</td>
+    <td><span class="badge ${s.status==='active'?'badge-active':'badge-inactive'}">${s.status}</span></td>
+    <td><div class="act-row"><button class="act-btn view" onclick="toast('👁 Viewing ${s.name}')">👁</button><button class="act-btn edit" onclick="openModal('edit_student')">✎</button><button class="act-btn del" onclick="toast('⚠ Student suspended')">⊘</button></div></td>
+  </tr>`).join('');
+}
+
+function renderPayments(){
+  const tb = document.getElementById('payments-tbody');
+  if(!tb||tb.children.length>0) return;
+  const data=[
+    {id:'TXN-9060',date:'Today 09:47',name:'Ahmed Ali',type:'Package',subj:'IELTS',amt:120,method:'Stripe',status:'paid'},
+    {id:'TXN-9059',date:'Today 08:30',name:'Priya Singh',type:'Custom',subj:'Programming',amt:40,method:'Stripe',status:'paid'},
+    {id:'TXN-9058',date:'Feb 25',name:'Julia Schneider',type:'Package',subj:'Mathematics',amt:240,method:'Stripe',status:'paid'},
+    {id:'TXN-9057',date:'Feb 24',name:'Lena Fischer',type:'Session',subj:'Physics',amt:20,method:'PayPal',status:'paid'},
+    {id:'TXN-9052',date:'Feb 22',name:'Lena Fischer',type:'Package',subj:'IELTS',amt:60,method:'Transfer',status:'pending'},
+    {id:'TXN-9041',date:'Feb 18',name:'Marco Rossi',type:'Custom',subj:'Mathematics',amt:120,method:'Transfer',status:'pending'},
+    {id:'REF-441',date:'Today',name:'Marco Rossi',type:'Refund',subj:'Mathematics',amt:-60,method:'Stripe',status:'refund'},
+  ];
+  tb.innerHTML = data.map(p=>`<tr>
+    <td class="td-mono">${p.id}</td>
+    <td class="td-mono">${p.date}</td>
+    <td class="td-name">${p.name}</td>
+    <td><span class="badge badge-subject" style="font-size:9px;">${p.type}</span></td>
+    <td class="td-mono">${p.subj}</td>
+    <td style="color:${p.amt<0?'var(--red)':p.status==='paid'?'var(--green)':'var(--warn)'};font-weight:600;">${p.amt<0?'−':'+'}€${Math.abs(p.amt)}</td>
+    <td class="td-mono">${p.method}</td>
+    <td><span class="badge ${p.status==='paid'?'badge-paid':p.status==='pending'?'badge-pending':'badge-refund'}">${p.status}</span></td>
+    <td><div class="act-row"><button class="act-btn view" onclick="toast('👁 Receipt viewed')">👁</button>${p.status==='pending'?'<button class="act-btn edit" onclick="toast(\'✅ Marked paid\')">✓</button>':''}<button class="act-btn del" onclick="toast('↩ Refund initiated')">↩</button></div></td>
+  </tr>`).join('');
+}
+
+function renderBookings(){
+  const tb = document.getElementById('bookings-tbody');
+  if(!tb||tb.children.length>0) return;
+  const data=[
+    {id:'BK-2041',student:'Ahmed Ali',type:'Package',subj:'IELTS',tutor:'Sarah Mitchell',slot:'Mon 10:00',amt:120,status:'confirmed'},
+    {id:'BK-2040',student:'Priya Singh',type:'Custom',subj:'Programming',tutor:'Dr. Novak',slot:'Tue 14:00',amt:40,status:'confirmed'},
+    {id:'BK-2039',student:'Marco Rossi',type:'Session',subj:'Mathematics',tutor:'Unassigned',slot:'Wed 09:00',amt:20,status:'pending'},
+    {id:'BK-2038',student:'Lena Fischer',type:'Package',subj:'IELTS',tutor:'Unassigned',slot:'Thu 11:00',amt:120,status:'pending'},
+    {id:'BK-2037',student:'Arjun Patel',type:'Custom',subj:'Medicine',tutor:'Dr. Krause',slot:'Fri 16:00',amt:60,status:'confirmed'},
+    {id:'BK-2036',student:'Sofia Bauer',type:'Session',subj:'Biology',tutor:'Dr. Green',slot:'Sat 10:00',amt:20,status:'cancelled'},
+  ];
+  tb.innerHTML = data.map(b=>`<tr>
+    <td class="td-mono">${b.id}</td>
+    <td class="td-name">${b.student}</td>
+    <td><span class="badge badge-subject" style="font-size:9px;">${b.type}</span></td>
+    <td class="td-mono">${b.subj}</td>
+    <td style="color:${b.tutor==='Unassigned'?'var(--red)':'var(--text2)'};" class="td-mono">${b.tutor}</td>
+    <td class="td-mono">${b.slot}</td>
+    <td style="color:var(--gold);font-weight:600;">€${b.amt}</td>
+    <td><span class="badge ${b.status==='confirmed'?'badge-active':b.status==='pending'?'badge-pending':'badge-inactive'}">${b.status}</span></td>
+    <td><div class="act-row"><button class="act-btn edit" onclick="openModal('schedule_session')">✎</button><button class="act-btn view" onclick="toast('📧 Confirmation sent')">✉</button><button class="act-btn del" onclick="toast('❌ Booking cancelled')">✕</button></div></td>
+  </tr>`).join('');
+}
+
+function renderLiveSessions(){
+  const live = document.getElementById('live-sess-list');
+  const sched = document.getElementById('sched-sess-list');
+  if(!live) return;
+  const liveData=[
+    {time:'Since 09:00',rem:'47 min left',title:'Calculus I – Integration Techniques',tutor:'Dr. Müller',student:'Julia Schneider',type:'Package'},
+    {time:'Since 09:30',rem:'22 min left',title:'IELTS Writing Task 2 – Essays',tutor:'Sarah Mitchell',student:'Ahmed Ali',type:'Custom'},
+    {time:'Since 08:00',rem:'68 min left',title:'Python – Object-Oriented Programming',tutor:'Dr. Novak',student:'Priya Singh',type:'Package'},
+  ];
+  live.innerHTML = liveData.map(s=>`
+    <div class="sess-item">
+      <div class="sess-time">${s.time}<br><span style="color:var(--red);font-size:10px;">${s.rem}</span></div>
+      <div class="sess-info"><div class="sess-title">${s.title}</div><div class="sess-meta">${s.tutor} → ${s.student} · ${s.type}</div></div>
+      <span class="badge badge-live">● LIVE</span>
+      <div class="sess-actions"><button class="btn btn-sec btn-xs" onclick="toast('👁 Session monitored')">Monitor</button><button class="btn btn-danger btn-xs" onclick="toast('⚠ Session ended by admin')">End</button></div>
+    </div>`).join('');
+
+  const schedData=[
+    {time:'11:00 today',title:'Linear Algebra – Eigenvalues',tutor:'Prof. Schmidt',student:'Marco Rossi',type:'Custom'},
+    {time:'13:00 today',title:'Thermodynamics – Heat Transfer',tutor:'Dr. Weber',student:'Lena Fischer',type:'Package'},
+    {time:'14:00 today',title:'IELTS Speaking Part 2',tutor:'Sarah Mitchell',student:'Arjun Patel',type:'Session'},
+    {time:'15:30 today',title:'Organic Chemistry – Alkenes',tutor:'Dr. Braun',student:'Sofia Bauer',type:'Custom'},
+    {time:'17:00 today',title:'Physics – Electromagnetism',tutor:'Prof. Hansen',student:'Max Weber',type:'Package'},
+  ];
+  sched.innerHTML = schedData.map(s=>`
+    <div class="sess-item">
+      <div class="sess-time">${s.time}</div>
+      <div class="sess-info"><div class="sess-title">${s.title}</div><div class="sess-meta">${s.tutor} → ${s.student} · ${s.type}</div></div>
+      <span class="badge badge-scheduled">Scheduled</span>
+      <div class="sess-actions"><button class="btn btn-sec btn-xs" onclick="openModal('schedule_session')">✎ Edit</button><button class="btn btn-danger btn-xs" onclick="toast('❌ Session cancelled')">Cancel</button></div>
+    </div>`).join('');
+
+  const ctb = document.getElementById('completed-tbody');
+  if(ctb&&ctb.children.length===0){
+    const comp=[
+      {date:'Feb 25 · 09:00',title:'Calculus I – Limits',tutor:'Dr. Müller',student:'Julia',dur:'120 min',rating:'★★★★★',sent:true},
+      {date:'Feb 25 · 11:00',title:'IELTS Listening',tutor:'Sarah Mitchell',student:'Ahmed',dur:'60 min',rating:'★★★★☆',sent:true},
+      {date:'Feb 24 · 14:00',title:'Thermodynamics II',tutor:'Dr. Weber',student:'Lena',dur:'180 min',rating:'★★★★★',sent:false},
+    ];
+    ctb.innerHTML = comp.map(c=>`<tr>
+      <td class="td-mono">${c.date}</td>
+      <td class="td-name">${c.title}</td>
+      <td class="td-mono">${c.tutor}</td>
+      <td class="td-mono">${c.student}</td>
+      <td class="td-mono">${c.dur}</td>
+      <td style="color:var(--gold);">${c.rating}</td>
+      <td>${c.sent?'<span class="badge badge-active">Sent</span>':'<span class="badge badge-pending">Pending</span>'}</td>
+      <td><div class="act-row"><button class="act-btn view" onclick="toast('👁 Summary viewed')">👁</button>${!c.sent?'<button class="act-btn edit" onclick="toast(\'📧 Summary reminder sent\')">✉</button>':''}</div></td>
+    </tr>`).join('');
+  }
+}
+
+function renderLogs(){
+  const tb = document.getElementById('logs-tbody');
+  if(!tb||tb.children.length>0) return;
+  const logs=[
+    {ts:'2026-02-26 09:47',admin:'Super Admin',action:'PAYMENT_CONFIRMED',target:'TXN-9060 (Ahmed Ali)',detail:'€120 package confirmed',ip:'192.168.1.1'},
+    {ts:'2026-02-26 09:31',admin:'Super Admin',action:'TUTOR_APPLICATION',target:'Dr. Yuki Tanaka',detail:'New application received',ip:'—'},
+    {ts:'2026-02-26 08:15',admin:'Super Admin',action:'SESSION_SCHEDULED',target:'BK-2041',detail:'IELTS session assigned to Sarah Mitchell',ip:'192.168.1.1'},
+    {ts:'2026-02-25 17:22',admin:'Super Admin',action:'SUBJECT_UPDATED',target:'Mathematics',detail:'Added session: Advanced Integration',ip:'192.168.1.1'},
+    {ts:'2026-02-25 16:00',admin:'Super Admin',action:'PACKAGE_CREATED',target:'Calculus Exam Sprint 3H',detail:'New 3H package published',ip:'192.168.1.1'},
+    {ts:'2026-02-25 14:30',admin:'Super Admin',action:'STUDENT_SUSPENDED',target:'User #2039',detail:'Policy violation — account suspended',ip:'192.168.1.1'},
+    {ts:'2026-02-25 11:10',admin:'Super Admin',action:'REFUND_APPROVED',target:'REF-438',detail:'€120 refund approved for Arjun Patel',ip:'192.168.1.1'},
+    {ts:'2026-02-24 09:00',admin:'Super Admin',action:'SETTINGS_CHANGED',target:'Platform Config',detail:'Tutor payout rate changed 80%→85%',ip:'192.168.1.1'},
+  ];
+  const colors={'PAYMENT_CONFIRMED':'var(--green)','SESSION_SCHEDULED':'var(--blue)','SUBJECT_UPDATED':'var(--gold)','PACKAGE_CREATED':'var(--purple)','TUTOR_APPLICATION':'var(--teal)','STUDENT_SUSPENDED':'var(--red)','REFUND_APPROVED':'var(--orange)','SETTINGS_CHANGED':'var(--warn)'};
+  tb.innerHTML = logs.map(l=>`<tr>
+    <td class="td-mono">${l.ts}</td>
+    <td class="td-name">${l.admin}</td>
+    <td><span style="color:${colors[l.action]||'var(--text2)'};font-family:'JetBrains Mono',monospace;font-size:10px;">${l.action}</span></td>
+    <td class="td-mono">${l.target}</td>
+    <td style="font-size:12px;color:var(--text2);">${l.detail}</td>
+    <td class="td-mono">${l.ip}</td>
+  </tr>`).join('');
+}
+
+// Init
+renderSubjAdmin();
+
+/* ── OWC Admin Data Integration ── */
+function owcInitAdmin() {
+  OWC.seedDemoData();
+  owcUpdateDashboard();
+  owcUpdateBookingsTable();
+  owcUpdateStudentsTable();
+  owcUpdatePaymentsTable();
+}
+
+function owcUpdateDashboard() {
+  const stats = OWC.getStats();
+  // Update stat cards if they exist
+  const cards = document.querySelectorAll('.stat-num, .kpi-num');
+  // Try to update known stat elements
+  const maps = {
+    'total-revenue': '€' + stats.totalRevenue.toLocaleString(),
+    'total-students': stats.totalStudents,
+    'total-bookings': stats.totalBookings,
+    'pending-count': stats.pending,
+  };
+  Object.entries(maps).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = val;
+  });
+}
+
+function owcUpdateBookingsTable() {
+  const tb = document.getElementById('bookings-tbody') || document.querySelector('[data-owc="bookings"]');
+  if(!tb) return;
+  const bookings = OWC.getBookings();
+  if(!bookings.length) return;
+  const statusColors = { pending:'var(--warn)', confirmed:'var(--blue)', completed:'var(--green)', cancelled:'var(--red)' };
+  tb.innerHTML = bookings.slice(0,50).map(b => `<tr>
+    <td class="td-mono">${b.id}</td>
+    <td class="td-name">${b.studentName}</td>
+    <td style="font-size:12px;">${b.name}</td>
+    <td><span style="color:${statusColors[b.status]||'var(--text2)'};font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;">${b.status}</span></td>
+    <td class="td-num">€${b.price}</td>
+    <td class="td-mono">${b.createdAt.slice(0,10)}</td>
+    <td>
+      <button onclick="OWC.updateBookingStatus('${b.id}','confirmed');owcUpdateBookingsTable();" style="background:var(--blue-dim);color:var(--blue);border:1px solid rgba(77,142,245,0.25);border-radius:5px;font-size:10px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;">Confirm</button>
+      <button onclick="OWC.updateBookingStatus('${b.id}','completed');owcUpdateBookingsTable();" style="background:var(--green-dim);color:var(--green);border:1px solid rgba(62,207,142,0.25);border-radius:5px;font-size:10px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;">Complete</button>
+      <button onclick="OWC.updateBookingStatus('${b.id}','cancelled');owcUpdateBookingsTable();" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.25);border-radius:5px;font-size:10px;padding:3px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;">Cancel</button>
+    </td>
+  </tr>`).join('');
+}
+
+function owcUpdateStudentsTable() {
+  const tb = document.getElementById('students-tbody') || document.querySelector('[data-owc="students"]');
+  if(!tb) return;
+  const students = OWC.getStudents();
+  if(!students.length) return;
+  tb.innerHTML = students.map(s => `<tr>
+    <td class="td-mono">${s.id}</td>
+    <td class="td-name">${s.name}</td>
+    <td class="td-mono">${s.email}</td>
+    <td class="td-num">${s.totalBookings}</td>
+    <td class="td-mono">${s.joinedAt.slice(0,10)}</td>
+  </tr>`).join('');
+}
+
+function owcUpdatePaymentsTable() {
+  const tb = document.getElementById('payments-tbody') || document.querySelector('[data-owc="payments"]');
+  if(!tb) return;
+  const payments = OWC.getPayments();
+  if(!payments.length) return;
+  tb.innerHTML = payments.map(p => `<tr>
+    <td class="td-mono">${p.id}</td>
+    <td class="td-num" style="color:var(--green);">€${p.amount}</td>
+    <td><span style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:10px;">COMPLETED</span></td>
+    <td class="td-mono">${p.method}</td>
+    <td class="td-mono">${p.createdAt.slice(0,10)}</td>
+  </tr>`).join('');
+}
+
+// Add logout button to topbar
+document.addEventListener('DOMContentLoaded', () => {
+  const tb = document.querySelector('.tb-right');
+  if(tb) {
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Logout';
+    logoutBtn.style.cssText = 'background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.25);border-radius:6px;font-family:"Outfit",sans-serif;font-size:12px;padding:6px 14px;cursor:pointer;margin-left:12px;';
+    logoutBtn.onclick = () => { OWC.adminLogout(); location.reload(); };
+    tb.appendChild(logoutBtn);
+  }
+  if(OWC.isAdminLoggedIn()) owcInitAdmin();
+  // Listen for new bookings from platform tab
+  OWC.on('booking:new', () => { owcUpdateBookingsTable(); owcUpdateDashboard(); });
+});
+</script>
+</body>
+</html>

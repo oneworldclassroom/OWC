@@ -525,15 +525,15 @@ body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text);
   <div class="sb-divider"></div>
   <div class="sb-section">
     <div class="sb-label">Subjects</div>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('math')"><span class="sb-icon">∫</span>Mathematics</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('eng')"><span class="sb-icon">⚙</span>Engineering</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('med')"><span class="sb-icon">⊕</span>Medicine</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('prompt')"><span class="sb-icon">◎</span>Prompt Eng.</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('prog')"><span class="sb-icon">&lt;/&gt;</span>Programming</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('bio')"><span class="sb-icon">❧</span>Biology</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('phys')"><span class="sb-icon">⊛</span>Physics</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('chem')"><span class="sb-icon">⋈</span>Chemistry</button>
-    <button class="sb-item" onclick="showView('subjects');selectSubject('ielts')"><span class="sb-icon">✎</span>IELTS</button>
+    <button class="sb-item" data-subj="math"   onclick="showView('subjects');selectSubject('math')"><span class="sb-icon">∫</span>Mathematics</button>
+    <button class="sb-item" data-subj="eng"    onclick="showView('subjects');selectSubject('eng')"><span class="sb-icon">⚙</span>Engineering</button>
+    <button class="sb-item" data-subj="med"    onclick="showView('subjects');selectSubject('med')"><span class="sb-icon">⊕</span>Medicine</button>
+    <button class="sb-item" data-subj="prompt" onclick="showView('subjects');selectSubject('prompt')"><span class="sb-icon">◎</span>Prompt Eng.</button>
+    <button class="sb-item" data-subj="prog"   onclick="showView('subjects');selectSubject('prog')"><span class="sb-icon">&lt;/&gt;</span>Programming</button>
+    <button class="sb-item" data-subj="bio"    onclick="showView('subjects');selectSubject('bio')"><span class="sb-icon">❧</span>Biology</button>
+    <button class="sb-item" data-subj="phys"   onclick="showView('subjects');selectSubject('phys')"><span class="sb-icon">⊛</span>Physics</button>
+    <button class="sb-item" data-subj="chem"   onclick="showView('subjects');selectSubject('chem')"><span class="sb-icon">⋈</span>Chemistry</button>
+    <button class="sb-item" data-subj="ielts"  onclick="showView('subjects');selectSubject('ielts')"><span class="sb-icon">✎</span>IELTS</button>
   </div>
   <div class="sb-divider"></div>
   <div class="sb-section">
@@ -861,13 +861,26 @@ function buildSubjectCard(s, onclick) {
 
 function renderHomeSubjects() {
   const grid = document.getElementById('home-subjects-grid');
-  grid.innerHTML = ALL_SUBJECTS.slice(0,14).map(s => buildSubjectCard(s, `showView('subjects');selectSubject('${s.id}')`)).join('') +
-    `<div class="subject-card" style="display:flex;align-items:center;justify-content:center;border-style:dashed;cursor:pointer;" onclick="showView('subjects')"><div style="text-align:center;color:var(--text3);font-size:12px;">+${ALL_SUBJECTS.length-14} more<br>subjects</div></div>`;
+  const active = ALL_SUBJECTS.filter(s => OWC.isSubjectActive(s.id));
+  grid.innerHTML = active.slice(0,14).map(s => buildSubjectCard(s, `showView('subjects');selectSubject('${s.id}')`)).join('') +
+    (active.length > 14 ? `<div class="subject-card" style="display:flex;align-items:center;justify-content:center;border-style:dashed;cursor:pointer;" onclick="showView('subjects')"><div style="text-align:center;color:var(--text3);font-size:12px;">+${active.length-14} more<br>subjects</div></div>` : '');
 }
 
 function renderSubjectsGrid() {
   const grid = document.getElementById('subjects-grid');
-  grid.innerHTML = ALL_SUBJECTS.map(s => buildSubjectCard(s, `selectSubject('${s.id}')`)).join('');
+  const active = ALL_SUBJECTS.filter(s => OWC.isSubjectActive(s.id));
+  grid.innerHTML = active.map(s => buildSubjectCard(s, `selectSubject('${s.id}')`)).join('');
+}
+
+function owcApplySubjectVisibility() {
+  // Sidebar buttons
+  document.querySelectorAll('[data-subj]').forEach(btn => {
+    const id = btn.getAttribute('data-subj');
+    btn.style.display = OWC.isSubjectActive(id) ? '' : 'none';
+  });
+  // Re-render grids
+  renderHomeSubjects();
+  renderSubjectsGrid();
 }
 
 // ============ SUBJECT DETAIL ============
@@ -1605,7 +1618,17 @@ function closePaperDetail() {
 // Render on page load
 document.addEventListener('DOMContentLoaded', () => {
   renderMockPapers();
-  if(typeof OWC !== 'undefined') OWC.seedDemoData();
+  if(typeof OWC !== 'undefined') {
+    OWC.seedDemoData();
+    owcApplySubjectVisibility();
+    // Listen for admin changes in real-time (other tab)
+    OWC.on('subjects:changed', () => owcApplySubjectVisibility());
+    OWC.on('settings:changed', ({ key, val }) => {
+      if(key === 'maintenanceMode' && val) {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#080b10;font-family:Outfit,sans-serif;text-align:center;"><div><div style="font-size:48px;margin-bottom:16px;">🔧</div><div style="font-size:24px;font-weight:700;color:#e8e8f0;margin-bottom:8px;">Platform Maintenance</div><div style="color:#6b7a8d;font-size:14px;">One World Classroom is temporarily offline.<br>Please check back soon.</div></div></div>';
+      }
+    });
+  }
 });
 </script>
 <script>

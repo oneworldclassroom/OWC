@@ -892,9 +892,9 @@ function owcAdminLogin(){
     </div>
     <div class="settings-card">
       <div class="settings-card-title">🔐 Access & Permissions</div>
-      <div class="setting-row"><div class="sr-left"><div class="sr-label">Student Registration Open</div><div class="sr-desc">Allow new students to register</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
-      <div class="setting-row"><div class="sr-left"><div class="sr-label">Tutor Applications Open</div><div class="sr-desc">Accept new tutor applications</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
-      <div class="setting-row"><div class="sr-left"><div class="sr-label">Platform Maintenance Mode</div><div class="sr-desc">Take platform offline for maintenance (redirects to notice page)</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Student Registration Open</div><div class="sr-desc">Allow new students to register</div></div><label class="toggle"><input type="checkbox" checked onchange="OWC.setSetting('registrationOpen',this.checked);toast(this.checked?'✅ Registration opened':'⚠ Registration closed')"><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Tutor Applications Open</div><div class="sr-desc">Accept new tutor applications</div></div><label class="toggle"><input type="checkbox" checked onchange="OWC.setSetting('tutorApplicationsOpen',this.checked);toast(this.checked?'✅ Tutor applications opened':'⚠ Tutor applications closed')"><span class="toggle-slider"></span></label></div>
+      <div class="setting-row"><div class="sr-left"><div class="sr-label">Platform Maintenance Mode</div><div class="sr-desc">Take platform offline for maintenance (redirects to notice page)</div></div><label class="toggle"><input type="checkbox" onchange="OWC.setSetting('maintenanceMode',this.checked);toast(this.checked?'🔧 Platform set to maintenance mode':'✅ Platform back online')"><span class="toggle-slider"></span></label></div>
       <div class="setting-row"><div class="sr-left"><div class="sr-label">Require 2FA for Admins</div><div class="sr-desc">Enforce two-factor authentication for all admin logins</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
     </div>
     <div class="danger-zone">
@@ -1355,21 +1355,36 @@ const STUDENTS_DATA = [
 function renderSubjAdmin(){
   const g = document.getElementById('subj-admin-grid');
   if(!g||g.children.length>1) return;
-  g.innerHTML = SUBJECTS_DATA.map(s=>`
-    <div class="subj-card">
+  // Merge stored state with default data
+  const storedSubjects = OWC.getSubjects();
+  const mergedSubjects = SUBJECTS_DATA.map(s => {
+    const stored = storedSubjects.find(x => x.id === s.id);
+    return stored ? { ...s, active: stored.active } : s;
+  });
+
+  g.innerHTML = mergedSubjects.map(s=>`
+    <div class="subj-card" id="sc-${s.id}">
       <div class="sc-top">
         <span class="sc-icon">${s.icon}</span>
-        <label class="toggle"><input type="checkbox" ${s.active?'checked':''} onchange="toast(this.checked?'✅ ${s.name} activated':'⚠ ${s.name} deactivated')"><span class="toggle-slider"></span></label>
+        <label class="toggle"><input type="checkbox" ${s.active?'checked':''} onchange="owcToggleSubject('${s.id}','${s.name}',this)"><span class="toggle-slider"></span></label>
       </div>
       <div class="sc-name">${s.name}</div>
       <div class="sc-stats"><span>${s.sessions} sessions</span><span>${s.tutors} tutors</span><span>${s.bookings} bookings</span></div>
-      <div style="margin-top:4px;">${s.active?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Inactive</span>'}</div>
+      <div id="sc-badge-${s.id}" style="margin-top:4px;">${s.active?'<span class="badge badge-active">Active</span>':'<span class="badge badge-inactive">Inactive</span>'}</div>
       <div class="sc-actions">
         <button class="btn btn-sec btn-xs" onclick="openModal('edit_subject','${s.id}')">✎ Edit</button>
         <button class="btn btn-sec btn-xs" onclick="openModal('add_session')">+ Session</button>
         <button class="btn btn-danger btn-xs" onclick="toast('🗑 ${s.name} removed')">✕</button>
       </div>
     </div>`).join('');
+}
+
+function owcToggleSubject(id, name, checkbox) {
+  const active = checkbox.checked;
+  OWC.setSubjectActive(id, active);
+  const badge = document.getElementById('sc-badge-' + id);
+  if (badge) badge.innerHTML = active ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-inactive">Inactive</span>';
+  toast(active ? '✅ ' + name + ' — now visible on platform' : '⚠ ' + name + ' — hidden from platform');
 }
 
 function renderSessMgmt(){
